@@ -9,8 +9,9 @@ Alternativas de nombre: NeuroPlan, FlowDay (decisión final pendiente — Sesió
 
 ## Fase actual
 
-Sesión 1 — Validación, Avatar, Monetización y Arquitectura: COMPLETA.
-FICHA-AVATAR.md creada y aprobada. Siguiente: Sesión 2 (Identidad visual).
+Sesión 1 — Validación/Avatar/Monetización/Arquitectura: COMPLETA (FICHA-AVATAR.md aprobada).
+Sesión 2 — Identidad visual: COMPLETA (FICHA-ARTE.md aprobada, dirección "Bloques de Campo" +
+hero de racha, ver direcciones-abc-focustrack.html). Siguiente: Sesión 3 (Página de ventas).
 
 ## Fuente de validación (idea ya investigada — NO re-validar)
 
