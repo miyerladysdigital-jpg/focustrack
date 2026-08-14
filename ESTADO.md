@@ -9,7 +9,8 @@ Alternativas de nombre: NeuroPlan, FlowDay (decisión final pendiente — Sesió
 
 ## Fase actual
 
-Sesión 1 — Validación, Avatar, Monetización y Arquitectura (arrancando).
+Sesión 1 — Validación, Avatar, Monetización y Arquitectura: COMPLETA.
+FICHA-AVATAR.md creada y aprobada. Siguiente: Sesión 2 (Identidad visual).
 
 ## Fuente de validación (idea ya investigada — NO re-validar)
 
@@ -91,18 +92,51 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 
 ## Decisiones técnicas (cocina del agente — no se le presenta al usuario como elección a aprobar)
 
-- Pendiente: framework (Next.js probable — se decide con la regla del stack en Sesión 1).
-- Pendiente: modelo de datos + RLS (25-BASE-DE-DATOS.md).
-- Pendiente: método de auth (26-AUTH-MODERNO.md).
-- Pendiente: loop de retención gatillo→acción→recompensa→inversión + ritual diario M0.
+### Stack
+- Next.js (App Router) + Supabase (DB/Auth/Storage) + Vercel + Hotmart + Resend. Estándar del SO.
+
+### Modelo de monetización (matriz A-F de 02C — DECIDIDO)
+- Nicho: Productividad/Organización con componente de Bienestar cognitivo (híbrido E+B).
+- **Modelo 2 — Onboarding + Paywall de prueba**, variante **Preview anónimo → paywall → login/auth**
+  (el timeline se genera con datos locales/anónimos en el onboarding; se pide cuenta recién para
+  guardar/desbloquear — coincide con la "primera victoria <5min" ya definida en la Constitución).
+- Trial: pagado, $0.99 USD por 7 días (tiempo-a-valor inmediato → trial corto, según regla de 02C).
+  Luego $3.99 USD/mes o $24.99 USD/año (mostrado como $2.08/mes, "2 MESES GRATIS", anual preseleccionado).
+  Evaluar lifetime $49.99 como señuelo en el paywall (no como plan principal).
+- Mapa D1-D7 del trial (a diseñar en Sesión 4): D1 = timeline usable el mismo día · D2-D3 = primer
+  insight real ("tu bloque más productivo fue...") · D4-D5 = inversión acumulada visible (tareas
+  organizadas) · D6 = aviso pre-cobro honesto · D7 = "ya eres Pro" con desbloqueo visible.
+
+### Modelo de datos (esquema inicial — se ajusta en Sesión 6 al conectar Supabase real)
+- `profiles` (espejo de auth.users: plan, trial_ends_at, energy_default)
+- `blocks` (timeline: id, user_id, date, start_time, end_time, title, status [pending/done/rescheduled], energy_tag)
+- `inbox_items` (buzón de pensamientos: id, user_id, text, created_at, converted_to_block_id nullable)
+- `user_progress` (racha, D1-D7 trial tracking, hitos)
+- `subscriptions` (espejo del estado de Hotmart: plan, status, current_period_end)
+- RLS en todas: `user_id = auth.uid()` con `using` + `with check`. Índices en cada `user_id` FK.
+
+### Auth (jerarquía de 26-AUTH-MODERNO.md)
+- Modelo Hotmart-first: el webhook crea usuarios passwordless; login primario = magic link/OTP
+  por email (combo enlace+código). Passkey se ofrece DESPUÉS de la primera victoria (D1-D3), nunca
+  en el primer login. OAuth Google como mejora posterior. Sin contraseñas.
+- Dado que el modelo es onboarding-first con preview anónimo, el registro real ocurre en el
+  paywall/login (no antes) — el progreso del onboarding se guarda localmente hasta ese punto.
+
+### Retención (pendiente de detallar en Sesión 5, con 24 y 56)
+- Loop: gatillo (recordatorio contextual por energía) → acción (organizar/reprogramar bloques) →
+  recompensa (dopamina visual + insight) → inversión (historial de bloques organizados que no
+  quiere perder). Ritual diario M0: apertura matutina → ver timeline del día ya armado.
+
 - No usa IA generativa en el MVP (integración con calendario es API, no LLM) — revisar si se agrega IA en fases posteriores.
 
 ## Qué falta (próximos pasos)
-1. Completar FICHA-AVATAR.md formal (57-AVATAR-Y-CONSCIENCIA.md).
-2. Correr 02-VALIDACION.md + 02C-PRICING-Y-MODELO-DE-NEGOCIO.md para fijar modelo/precio definitivo.
-3. Definir arquitectura, modelo de datos y auth (04, 25, 26).
-4. B4: preguntar referencias visuales al usuario (Structured/Fabulous/Finch u otras).
-5. B5: presentar Plan Maestro completo y esperar OK antes de codear.
+1. Sesión 2 — Identidad visual: 3 direcciones A/B/C basadas en Structured (elegida por el usuario), FICHA-ARTE.md.
+2. Sesión 3 — Página de ventas (10 secciones canónicas, copy derivado de FICHA-AVATAR.md).
+3. Sesión 4 — Onboarding, paywall y login (con el mapa D1-D7 ya definido arriba).
+4. Sesión 5 — App interna (Timeline, Inbox, Reprogramar, Cuenta/Plan).
+5. Sesión 6 — Conexión de servicios reales (Supabase, Hotmart, Vercel, Resend, dominio) — aquí el usuario crea cuentas.
+6. Sesión 7 — Testing, pulido, gates de seguridad e integridad.
+7. Sesión 8 — Adquisición y lanzamiento.
 
 ## Problemas conocidos
 Ninguno aún.
