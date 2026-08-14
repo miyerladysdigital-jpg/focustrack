@@ -10,6 +10,9 @@
   --color-text-tertiary: var(--text-tertiary);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
   --radius-card: var(--radius-card);
   --radius-button: var(--radius-button);
   --font-display: var(--font-display);

@@ -27,7 +27,7 @@ export default function LandingFocusTrack() {
       {/* 1. HERO */}
       <Hero
         appName="FocusTrack"
-        loginHref="/entrar"
+        loginHref="/login"
         h1Marked="Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa."
         subtitleMarked="El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b]."
         ctaLabel={CTA_LABEL}

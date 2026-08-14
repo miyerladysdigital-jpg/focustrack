@@ -12,8 +12,27 @@ Alternativas de nombre: NeuroPlan, FlowDay (decisión final pendiente — Sesió
 Sesión 1 — Validación/Avatar/Monetización/Arquitectura: COMPLETA (FICHA-AVATAR.md aprobada).
 Sesión 2 — Identidad visual: COMPLETA (FICHA-ARTE.md aprobada, dirección "Bloques de Campo" +
 hero de racha, ver direcciones-abc-focustrack.html).
-Sesión 3 — Página de ventas: CONSTRUIDA, no cerrada del todo (ver pendientes abajo). Siguiente:
-Sesión 4 (Onboarding, paywall y login).
+Sesión 3 — Página de ventas: CONSTRUIDA, no cerrada del todo (ver pendientes abajo).
+Sesión 4 — Onboarding/paywall/login: recorrido funcional armado y probado a mano en el navegador
+de punta a punta (`/onboarding` → `/paywall` → `/login` → confirmación de correo); NO iniciado el
+pase del revisor-visual todavía (ver Problemas conocidos). Siguiente: Sesión 5 (app interna) — o
+antes, si se decide, cerrar el veredicto formal de onboarding/paywall.
+
+### Sesión 4 — Detalle de lo construido
+- `app/onboarding/page.tsx` + `components/onboarding/ui.tsx`: quiz de 5 preguntas + pantalla de
+  reconocimiento (A5, una por cada dolor de FICHA-AVATAR.md) + loading "Construyendo tu día…" (B).
+  Respuestas en localStorage (Modelo 2 anónimo — sin cuenta todavía).
+- `app/paywall/page.tsx`: blueprint C1+C4 (timeline del trial Hoy/Día 6/Día 7), planes Anual
+  (recomendado, $2.08/mes) y Mensual ($3.99/mes), CTA "Empezar mi prueba de $0.99" (nunca "gratis"
+  — la lección de la landing se aplicó desde el diseño).
+- `app/login/page.tsx`: magic link con los 3 estados (idle/enviando/enviado + cooldown 60s),
+  mock local — Supabase Auth real se conecta en Sesión 6 (C3ter: nunca simular un cobro real, sí
+  se puede simular el flujo de login).
+- Se agregaron tokens semánticos `--success/--error/--warning` a `components/landing/tokens.css`
+  (faltaban, se usó un hex directo por error y el linter de diseño lo marcó — corregido).
+- `docs/copy/onboarding.md`: copy completo trazado a FICHA-AVATAR.md.
+- Verificado: `npm run build` ✓ (8 rutas estáticas) · `npm run typecheck` ✓ · flujo completo
+  probado a mano en el navegador (clic por clic, incluyendo el estado "revisa tu correo" del login).
 
 ### Sesión 3 — Detalle de lo construido
 - Scaffold Next.js 16 (App Router, Turbopack, TS, Tailwind v4) instalado en la raíz del proyecto.
@@ -204,6 +223,14 @@ competencia) · "visual routine tracker" (medio, alta conversión).
    `direcciones-abc-focustrack.html`) para satisfacer el gate de evidencia del protocolo A/B/C.
 5. Placeholders honestos pendientes de reemplazar en Sesión 5/6: screenshots reales de la app en
    el hero y el carrusel, y el email de soporte (`soporte@focustrack.app`) cuando exista el dominio real.
+6. **veredicto-onboarding** y **veredicto-paywall**: `/onboarding`, `/paywall` y `/login` ya están
+   construidos y probados a mano en el navegador (Sesión 4), pero el subagente `revisor-visual`
+   TODAVÍA NO corrió sobre ellos — son 2 de las "4 pantallas del dinero" que lo exigen (Regla de Oro 7).
+   Falta: tomar screenshot a 375px de `/onboarding` (la pregunta 1) y de `/paywall`, guardarlos en
+   `docs/revisiones/onboarding-375.png` y `docs/revisiones/paywall-375.png`, y lanzar el revisor con
+   esos screenshots + el código + FICHA-ARTE.md + FICHA-AVATAR.md. Nota: ahora que `/onboarding` y
+   `/login` existen, vale la pena relanzar TAMBIÉN el revisor sobre la landing (veredicto-landing,
+   arriba) — el defecto que más pesaba (CTAs a rutas inexistentes) ya no aplica.
 
 ## SESIÓN EN CURSO — 2026-08-14
 Retomada tras pausa del 2026-08-13. Se corrigieron 4 de los 5 defectos que encontró el

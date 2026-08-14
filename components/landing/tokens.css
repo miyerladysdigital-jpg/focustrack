@@ -18,6 +18,11 @@
   --accent: #3d6b4f;
   --accent-2: #3d6b4f;
 
+  /* ── SEMÁNTICOS (FICHA-ARTE.md — nunca rojo/verde semáforo genérico) ── */
+  --success: #3d6b4f;
+  --error: #b3492f;
+  --warning: #b8862e;
+
   /* ── FORMA ── */
   --radius-card: 10px;
   --radius-button: 8px;
