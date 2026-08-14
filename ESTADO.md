@@ -15,8 +15,39 @@ hero de racha, ver direcciones-abc-focustrack.html).
 Sesión 3 — Página de ventas: CONSTRUIDA, no cerrada del todo (ver pendientes abajo).
 Sesión 4 — Onboarding/paywall/login: recorrido funcional armado y probado a mano en el navegador
 de punta a punta (`/onboarding` → `/paywall` → `/login` → confirmación de correo); NO iniciado el
-pase del revisor-visual todavía (ver Problemas conocidos). Siguiente: Sesión 5 (app interna) — o
-antes, si se decide, cerrar el veredicto formal de onboarding/paywall.
+pase del revisor-visual todavía (ver Problemas conocidos).
+Sesión 5 — App interna: CONSTRUIDA y probada a mano en el navegador (4 secciones: Hoy/Buzón/
+Semana/Cuenta, con datos semilla de "Andrea" — nunca vacía). NO iniciado el pase del
+revisor-visual sobre la "pantalla principal" (Hoy) todavía. Siguiente: Sesión 6 (conectar
+Supabase/Hotmart/Vercel/Resend/dominio — aquí el usuario crea cuentas) — o antes, cerrar los
+veredictos formales pendientes de landing/onboarding/paywall/Hoy.
+
+### Sesión 5 — Detalle de lo construido
+- `lib/app-data.ts`: capa de datos en localStorage (sin backend hasta Sesión 6). Seed de datos
+  demo realista: "Andrea", 3 bloques de hoy (1 hecho/2 pendientes), 5 pensamientos en el buzón con
+  fechas relativas reales, racha de 5 días, semana con 5/7 días activos — nunca la app vacía
+  (32-DEL-MVP-AL-PRODUCTO).
+- `app/app/layout.tsx` + `components/app/BottomNav.tsx`: shell `min-h-dvh` con nav inferior de
+  4 pestañas (Hoy/Buzón/Semana/Cuenta) — sin vacío muerto, nav siempre al fondo.
+- `app/app/page.tsx` (Hoy, M0 ritual diario): las 4 piezas del blueprint 56→M0.1 — dato de hoy
+  (X/Y bloques), racha visible (no protagonista), insight en la voz del mecanismo, y EL BOTÓN DE
+  REPROGRAMACIÓN SIN CULPA (contextual: solo aparece si hay bloques pendientes).
+- `app/app/buzon/page.tsx`: captura rápida + lista con resumen agregado + convertir a bloque o
+  eliminar. Acción de creación en el contexto visual de la lista (proximidad).
+- `app/app/semana/page.tsx`: protagonista distinto a Hoy (el patrón semanal, no repite el plan del
+  día) — 2 tarjetas de resumen + gráfico de barras por día + insight semanal.
+- `app/app/cuenta/page.tsx`: estado del trial/plan con CTA a `/paywall`, ajustes, enlaces legales,
+  cerrar sesión — toda capacidad soportada es alcanzable desde la UI (enriquecimiento #4).
+- **Bug real encontrado y corregido en vivo**: las barras del gráfico de "Semana" no se veían
+  (alturas en % dentro de un flex-item sin alto propio se resuelven a 0 — bug de CSS clásico).
+  Se corrigió dándole alto explícito al contenedor de cada barra. Verificado visualmente antes/después.
+- **Bug de codegen de Next.js 16.3.1 encontrado y corregido**: al usar `LayoutProps<'/app'>` en un
+  layout no-raíz, tsc fallaba con "Type 'Route' does not satisfy the constraint '\"/\"'" — la causa
+  real era `.next/types/routes.d.ts` desactualizado (el que lee `next-env.d.ts`, distinto de
+  `.next/dev/types/routes.d.ts` que sí se actualiza con el dev server). Se resolvió corriendo
+  `npx next typegen`. Anotado por si reaparece al agregar nuevas rutas.
+- Verificado: `npm run build` ✓ (12 rutas estáticas) · `npm run typecheck` ✓ · las 4 pantallas
+  probadas a mano en el navegador con los datos semilla, incluyendo el fix del gráfico.
 
 ### Sesión 4 — Detalle de lo construido
 - `app/onboarding/page.tsx` + `components/onboarding/ui.tsx`: quiz de 5 preguntas + pantalla de
@@ -221,16 +252,21 @@ competencia) · "visual routine tracker" (medio, alta conversión).
    `motion.*` del kit de landing — revisar en Sesión 7 (pulido/testing), no es urgente.
 4. **direcciones-abc-en-raiz**: ya existe `direcciones-abc.html` en la raíz (copia de
    `direcciones-abc-focustrack.html`) para satisfacer el gate de evidencia del protocolo A/B/C.
-5. Placeholders honestos pendientes de reemplazar en Sesión 5/6: screenshots reales de la app en
-   el hero y el carrusel, y el email de soporte (`soporte@focustrack.app`) cuando exista el dominio real.
-6. **veredicto-onboarding** y **veredicto-paywall**: `/onboarding`, `/paywall` y `/login` ya están
-   construidos y probados a mano en el navegador (Sesión 4), pero el subagente `revisor-visual`
-   TODAVÍA NO corrió sobre ellos — son 2 de las "4 pantallas del dinero" que lo exigen (Regla de Oro 7).
-   Falta: tomar screenshot a 375px de `/onboarding` (la pregunta 1) y de `/paywall`, guardarlos en
-   `docs/revisiones/onboarding-375.png` y `docs/revisiones/paywall-375.png`, y lanzar el revisor con
-   esos screenshots + el código + FICHA-ARTE.md + FICHA-AVATAR.md. Nota: ahora que `/onboarding` y
-   `/login` existen, vale la pena relanzar TAMBIÉN el revisor sobre la landing (veredicto-landing,
-   arriba) — el defecto que más pesaba (CTAs a rutas inexistentes) ya no aplica.
+5. Placeholders honestos en la landing (hero + carrusel "La app por dentro"): AHORA SÍ se pueden
+   reemplazar por screenshots reales — `/app` ya existe con datos semilla (Sesión 5). Pendiente:
+   tomar esas capturas reales y actualizar `app/page.tsx`. El email de soporte
+   (`soporte@focustrack.app`) sigue como placeholder hasta que exista el dominio real (Sesión 6).
+6. **veredicto-onboarding**, **veredicto-paywall** y **veredicto-app-principal**: `/onboarding`,
+   `/paywall`, `/login` y `/app` (Hoy) ya están construidos y probados a mano en el navegador
+   (Sesiones 4-5), pero el subagente `revisor-visual` TODAVÍA NO corrió sobre ninguno — son 3 de
+   las "4 pantallas del dinero" que lo exigen (Regla de Oro 7; landing es la 4ª, ver
+   veredicto-landing arriba). Falta: tomar screenshot a 375px de `/onboarding` (pregunta 1),
+   `/paywall` y `/app` (Hoy, con los datos semilla), guardarlos en `docs/revisiones/`, y lanzar el
+   revisor con esos screenshots + el código + FICHA-ARTE.md + FICHA-AVATAR.md. Nota: ahora que
+   `/onboarding`, `/login` y `/app` existen, vale la pena relanzar TAMBIÉN el revisor sobre la
+   landing (veredicto-landing, arriba) — el defecto que más pesaba (CTAs a rutas inexistentes) ya
+   no aplica. Recomendación: correr los 4 veredictos juntos en una sola sesión de revisión antes
+   de conectar servicios reales (Sesión 6), no uno a la vez.
 
 ## SESIÓN EN CURSO — 2026-08-14
 Retomada tras pausa del 2026-08-13. Se corrigieron 4 de los 5 defectos que encontró el
