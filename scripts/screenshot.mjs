@@ -10,6 +10,11 @@ const targets = [
     width: 375,
     height: 812,
     fullPage: true,
+    // Google Fonts over this network is unreliable (404s/timeouts seen), and
+    // both 'load' (waits on <link rel=stylesheet>) and 'networkidle0' (HMR
+    // websocket never idles) hang indefinitely. domcontentloaded + a fixed
+    // grace period is the only wait that doesn't depend on that network call.
+    waitUntil: 'domcontentloaded',
   },
   {
     url: 'file:///' + path.resolve('direcciones-abc.html').replace(/\\/g, '/'),
@@ -17,31 +22,39 @@ const targets = [
     width: 1280,
     height: 900,
     fullPage: true,
+    waitUntil: 'domcontentloaded',
   },
 ];
 
 const browser = await puppeteer.launch({
   executablePath: CHROME_PATH,
   headless: true,
+  timeout: 120000,
 });
 
 for (const t of targets) {
   const page = await browser.newPage();
   await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
   await page.setViewport({ width: t.width, height: t.height });
-  await page.goto(t.url, { waitUntil: 'networkidle0', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 500));
+  await page.goto(t.url, { waitUntil: t.waitUntil, timeout: 60000 });
+  // Grace period for fonts/CSS to arrive opportunistically — best effort,
+  // not a hard requirement (see waitUntil comment above).
+  await new Promise((r) => setTimeout(r, 4000));
 
-  // Scroll through the whole page in steps so whileInView reveals fire
-  // (framer-motion needs each section to actually enter the viewport).
+  // Scroll through the whole page in SMALL overlapping steps so every
+  // whileInView reveal actually crosses its 20% visibility threshold and has
+  // time to finish animating (duration ~450ms + stagger) before we move on.
   const scrollHeight = await page.evaluate(() => document.body.scrollHeight);
-  const step = t.height;
+  const step = Math.round(t.height * 0.4);
   for (let y = 0; y < scrollHeight; y += step) {
     await page.evaluate((yy) => window.scrollTo(0, yy), y);
-    await new Promise((r) => setTimeout(r, 250));
+    await new Promise((r) => setTimeout(r, 500));
   }
+  // Hold at the bottom so the last sections (which had the least time above)
+  // finish their reveal, then scroll back to top for the final capture.
+  await new Promise((r) => setTimeout(r, 800));
   await page.evaluate(() => window.scrollTo(0, 0));
-  await new Promise((r) => setTimeout(r, 300));
+  await new Promise((r) => setTimeout(r, 500));
 
   await page.screenshot({ path: t.out, fullPage: t.fullPage });
   console.log('Saved', t.out);

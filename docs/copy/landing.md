@@ -47,7 +47,7 @@ antesDespues:
 ## 5. LA APP POR DENTRO
 tituloMarked: `Tu día, [acento]ya organizado[/acento]`
 frames:
-- `Tu primer timeline` → Onboarding
+- `Tu primer timeline` → Tu primer plan
 - `Tu día en bloques` → Timeline de hoy
 - `Reprograma sin culpa` → Reprogramación
 - `Vacía tu cabeza` → Buzón de pensamientos
@@ -55,6 +55,7 @@ frames:
 ## 6. OFERTA
 tituloMarked: `Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
 trialDias: 7
+trialLabel: `Prueba 7 días por $0.99` (el badge del kit dice por defecto "N días gratis" — nuestro trial es PAGADO, así que se sobrescribe explícitamente para no contradecir la promesa de "cero cobros ocultos". Hallazgo del revisor-visual, corregido.)
 stack:
 - `FocusTrack Pro (12 meses)` → `$47.88`
 - `Reprogramación ilimitada + buzón sin límite` → `incluido`

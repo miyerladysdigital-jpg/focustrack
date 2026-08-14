@@ -175,12 +175,23 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 
 ## Problemas conocidos
 
-1. **veredicto-pendiente**: falta el pase formal del subagente `revisor-visual` sobre la landing
-   (rúbricas ≥36/40 usabilidad y ≥16/20 craft) y escribir `docs/revisiones/landing-veredicto.md`.
-   Ya existen `docs/revisiones/landing-375.png` y `docs/revisiones/direcciones-abc.png`, pero el
-   primero se generó con un bug (los reveals de framer-motion no se dispararon en la captura
-   fullPage) — el script `scripts/screenshot.mjs` ya se corrigió (hace scroll por toda la página
-   antes de capturar) pero falta volver a correrlo y re-tomar `landing-375.png`.
+1. **veredicto-pendiente**: el subagente `revisor-visual` corrió una primera vez (2026-08-14,
+   NO LISTA: 19/40 usabilidad, 9/20 craft, 12/20 copy) y encontró 5 defectos. Ya se corrigieron 4:
+   (a) el bug de captura fullPage con framer-motion (script `scripts/screenshot.mjs` reescrito con
+   scroll lento por pasos de 40% de viewport + esperas de 500ms — re-verificado a ojo en el
+   navegador, ahora se ven TODAS las secciones), (b) las 3 páginas legales que faltaban
+   (`app/privacidad`, `app/terminos`, `app/reembolsos` — ya creadas y confirmadas navegables),
+   (c) el `TrialBadge` de `components/landing/Oferta.tsx` decía "7 días gratis" contradiciendo que
+   el trial es PAGADO ($0.99) — se agregó el prop `trialLabel` y `app/page.tsx` ahora pasa
+   "Prueba 7 días por $0.99" (verificado visualmente, ya no dice "gratis"), (d) el primer frame del
+   carrusel decía "Onboarding" (inglés) → ahora "Tu primer plan". El defecto #5 (placeholder honesto
+   del hero sin screenshot real) NO se resuelve ahora — es doctrina del SO (32-DEL-MVP-AL-PRODUCTO):
+   se resuelve en Sesión 5 cuando exista la app con datos semilla. Se relanzó el revisor-visual una
+   segunda vez sobre el screenshot corregido (`docs/revisiones/landing-375.png`, regenerado
+   2026-08-14 11:23) — el resultado de esa segunda pasada AÚN NO estaba disponible al pausar/cerrar
+   este bloque de trabajo. Retomar: revisar `docs/revisiones/landing-veredicto.md` — si dice
+   "Veredicto: LISTA" con ≥36/40 y ≥16/20, cerrar la Sesión 3 y pasar a Sesión 4; si no, corregir los
+   defectos restantes y relanzar de nuevo.
 2. **garantia-resuelta**: se creó `FICHA-MERCADO.md` con Prueba=7 días / Garantía=14 días (14>7,
    regla dura cumplida). Pendiente CRÍTICO: verificar en Sesión 6, al conectar la cuenta real de
    Hotmart, que el panel permite configurar 14 días de garantía — si el máximo real fuera menor,
@@ -192,8 +203,10 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 5. Placeholders honestos pendientes de reemplazar en Sesión 5/6: screenshots reales de la app en
    el hero y el carrusel, y el email de soporte (`soporte@focustrack.app`) cuando exista el dominio real.
 
-## SESIÓN PAUSADA A PEDIDO DEL USUARIO — 2026-08-13
-Se retoma desde aquí: correr de nuevo `node scripts/screenshot.mjs` (ya arreglado), lanzar el
-subagente `revisor-visual` con ese screenshot + `app/page.tsx` + FICHA-ARTE.md + FICHA-AVATAR.md,
-y con su veredicto ≥36/40 y ≥16/20 recién ahí la Sesión 3 (landing) queda formalmente cerrada.
-Después: Sesión 4 (onboarding, paywall, login).
+## SESIÓN EN CURSO — 2026-08-14
+Retomada tras pausa del 2026-08-13. Se corrigieron 4 de los 5 defectos que encontró el
+revisor-visual en su primera pasada sobre la landing (ver Problemas conocidos #1). Segunda pasada
+del revisor-visual lanzada sobre el screenshot ya corregido; su resultado se lee en
+`docs/revisiones/landing-veredicto.md` al retomar. Si LISTA (≥36/40 y ≥16/20): cerrar Sesión 3 y
+seguir con Sesión 4 (onboarding, paywall, login). Si no: aplicar las correcciones restantes y
+volver a relanzar el revisor.

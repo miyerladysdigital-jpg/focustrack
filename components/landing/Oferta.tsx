@@ -32,6 +32,10 @@ export interface OfertaProps {
   tituloMarked: string;
   /** N días de trial según 02C/ESTADO.md. undefined = esquema SIN trial → sin badge. */
   trialDias?: number;
+  /** Texto del badge de trial. Default "{trialDias} días gratis" — SOLO válido si el
+   * trial es realmente gratis. Si el trial es PAGADO (ej. "$0.99"), este prop es
+   * OBLIGATORIO: el default miente sobre el modelo de cobro (52 §5, cero dark patterns). */
+  trialLabel?: string;
   /** El plan ANUAL — recomendado, primero en el DOM. */
   anual: PlanOferta & {
     /** "Se cobra $X/año" — OBLIGATORIO: el total nunca se esconde (52 §2). */
@@ -51,11 +55,11 @@ export interface OfertaProps {
   id?: string;
 }
 
-function TrialBadge({ dias }: { dias: number }) {
+function TrialBadge({ dias, label }: { dias: number; label?: string }) {
   return (
     <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--accent)_13%,transparent)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--accent)]">
       <Star size={12} strokeWidth={2.5} aria-hidden="true" />
-      {dias} días gratis
+      {label ?? `${dias} días gratis`}
     </span>
   );
 }
@@ -95,6 +99,7 @@ export function Oferta({
   kicker = 'LA OFERTA',
   tituloMarked,
   trialDias,
+  trialLabel,
   anual,
   mensual,
   stack,
@@ -155,7 +160,7 @@ export function Oferta({
               <div className="rounded-[var(--radius-card)] bg-[color-mix(in_oklab,var(--accent)_5%,transparent)] p-6 md:p-7">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-[18px] font-semibold text-[var(--text-primary)]">{anual.nombre}</h3>
-                  {trialDias !== undefined && <TrialBadge dias={trialDias} />}
+                  {trialDias !== undefined && <TrialBadge dias={trialDias} label={trialLabel} />}
                 </div>
                 <div className="mt-4">
                   <Precio plan={anual} />
@@ -180,7 +185,7 @@ export function Oferta({
           >
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[18px] font-semibold text-[var(--text-primary)]">{mensual.nombre}</h3>
-              {trialDias !== undefined && <TrialBadge dias={trialDias} />}
+              {trialDias !== undefined && <TrialBadge dias={trialDias} label={trialLabel} />}
             </div>
             <div className="mt-4">
               <Precio plan={mensual} />

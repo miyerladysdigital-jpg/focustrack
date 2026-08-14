@@ -84,7 +84,7 @@ export default function LandingFocusTrack() {
       <AppPorDentro
         tituloMarked="Tu día, [acento]ya organizado[/acento]"
         frames={[
-          { label: 'Tu primer timeline', nombrePantalla: 'Onboarding' },
+          { label: 'Tu primer timeline', nombrePantalla: 'Tu primer plan' },
           { label: 'Tu día en bloques', nombrePantalla: 'Timeline de hoy' },
           { label: 'Reprograma sin culpa', nombrePantalla: 'Reprogramación' },
           { label: 'Vacía tu cabeza', nombrePantalla: 'Buzón de pensamientos' },
@@ -97,6 +97,7 @@ export default function LandingFocusTrack() {
       <Oferta
         tituloMarked="Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]"
         trialDias={7}
+        trialLabel="Prueba 7 días por $0.99"
         stack={{
           lineas: [
             { resultado: 'FocusTrack Pro (12 meses)', valor: '$47.88' },
