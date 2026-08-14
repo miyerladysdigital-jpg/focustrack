@@ -11,7 +11,41 @@ Alternativas de nombre: NeuroPlan, FlowDay (decisión final pendiente — Sesió
 
 Sesión 1 — Validación/Avatar/Monetización/Arquitectura: COMPLETA (FICHA-AVATAR.md aprobada).
 Sesión 2 — Identidad visual: COMPLETA (FICHA-ARTE.md aprobada, dirección "Bloques de Campo" +
-hero de racha, ver direcciones-abc-focustrack.html). Siguiente: Sesión 3 (Página de ventas).
+hero de racha, ver direcciones-abc-focustrack.html).
+Sesión 3 — Página de ventas: CONSTRUIDA, no cerrada del todo (ver pendientes abajo). Siguiente:
+Sesión 4 (Onboarding, paywall y login).
+
+### Sesión 3 — Detalle de lo construido
+- Scaffold Next.js 16 (App Router, Turbopack, TS, Tailwind v4) instalado en la raíz del proyecto.
+- Kit canónico de landing copiado a `components/landing/` y tematizado en
+  `components/landing/tokens.css` con los valores de FICHA-ARTE.md.
+- Copy completo y marcado en `docs/copy/landing.md`, trazado a FICHA-AVATAR.md. Mecanismo
+  bautizado: "el Botón de Reprogramación Sin Culpa". Modelo 2 (onboarding-first, variante
+  anónima) — todos los CTA apuntan a `/onboarding` (aún no existe, se construye en Sesión 4).
+- `app/page.tsx` compone las 10 secciones canónicas con ese copy. `app/layout.tsx` carga Chivo +
+  Hanken Grotesk vía `<link>` de Google Fonts (NO next/font/google — esa vía falló por 404s
+  intermitentes de fonts.gstatic.com en la red de esta máquina; el link CSS es más tolerante).
+- Verificado: `npm run build` ✓ · `npm run typecheck` ✓ · `npm run dev` levanta sin errores de
+  consola bloqueantes · revisado visualmente a 375px y desktop, las 10 secciones renderizan bien
+  (colores salvia, tipografías cargando, carrusel, acordeón FAQ, sticky CTA, CTA final invertido).
+- `.claude/launch.json` creado para poder previsualizar con el navegador (`npm run dev`, puerto 3000).
+- Protección aplicada: se le agregó al final de CLAUDE.md y AGENTS.md el bloque
+  `<!-- BEGIN:nextjs-agent-rules -->...END` que Next.js 16 auto-genera, para que `next dev`/`build`
+  NUNCA vuelva a tocar esos archivos (son las reglas del SO, no se pueden perder).
+
+### Pendientes de Sesión 3 (NO declarar la landing "lista para vender" hasta resolver esto)
+1. Warning de hidratación de `framer-motion` (whileInView) en consola — no bloquea, pero hay que
+   revisarlo en la Sesión 7 (pulido/testing). No es un bug introducido por el copy/tokens, es del
+   kit del SO tal cual viene.
+2. Falta el pase formal del subagente `revisor-visual` (rúbricas /40 y /20) — la landing es una de
+   las 4 pantallas "del dinero" que lo requieren obligatoriamente antes de declararla cerrada.
+3. Faltan capturas reales guardadas en `docs/revisiones/` (se verificó visualmente en el navegador
+   de la sesión, pero no se archivó el PNG ni el veredicto — pendiente).
+4. El placeholder del hero y los 4 frames del carrusel "La app por dentro" siguen siendo
+   placeholders honestos (correcto por doctrina: la app aún no existe — se reemplazan con
+   screenshots reales en la Sesión 5, cuando exista el seed de datos).
+5. `soporte@focustrack.app` en el footer es un email placeholder — se confirma el dominio real en
+   Sesión 6.
 
 ## Fuente de validación (idea ya investigada — NO re-validar)
 
