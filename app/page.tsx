@@ -113,7 +113,7 @@ export default function LandingFocusTrack() {
           totalAnual: 'Se cobra $24.99/año',
           ahorro: '6 meses gratis',
           descomposicionDia: 'menos de $0.07 al día',
-          ctaLabel: 'Empezar mis 7 días gratis',
+          ctaLabel: 'Empezar mi prueba de $0.99',
           ctaHref: CTA_HREF,
           features: [
             'Timeline ilimitado',

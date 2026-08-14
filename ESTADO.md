@@ -175,23 +175,24 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 
 ## Problemas conocidos
 
-1. **veredicto-pendiente**: el subagente `revisor-visual` corrió una primera vez (2026-08-14,
-   NO LISTA: 19/40 usabilidad, 9/20 craft, 12/20 copy) y encontró 5 defectos. Ya se corrigieron 4:
-   (a) el bug de captura fullPage con framer-motion (script `scripts/screenshot.mjs` reescrito con
-   scroll lento por pasos de 40% de viewport + esperas de 500ms — re-verificado a ojo en el
-   navegador, ahora se ven TODAS las secciones), (b) las 3 páginas legales que faltaban
-   (`app/privacidad`, `app/terminos`, `app/reembolsos` — ya creadas y confirmadas navegables),
-   (c) el `TrialBadge` de `components/landing/Oferta.tsx` decía "7 días gratis" contradiciendo que
-   el trial es PAGADO ($0.99) — se agregó el prop `trialLabel` y `app/page.tsx` ahora pasa
-   "Prueba 7 días por $0.99" (verificado visualmente, ya no dice "gratis"), (d) el primer frame del
-   carrusel decía "Onboarding" (inglés) → ahora "Tu primer plan". El defecto #5 (placeholder honesto
-   del hero sin screenshot real) NO se resuelve ahora — es doctrina del SO (32-DEL-MVP-AL-PRODUCTO):
-   se resuelve en Sesión 5 cuando exista la app con datos semilla. Se relanzó el revisor-visual una
-   segunda vez sobre el screenshot corregido (`docs/revisiones/landing-375.png`, regenerado
-   2026-08-14 11:23) — el resultado de esa segunda pasada AÚN NO estaba disponible al pausar/cerrar
-   este bloque de trabajo. Retomar: revisar `docs/revisiones/landing-veredicto.md` — si dice
-   "Veredicto: LISTA" con ≥36/40 y ≥16/20, cerrar la Sesión 3 y pasar a Sesión 4; si no, corregir los
-   defectos restantes y relanzar de nuevo.
+1. **veredicto-landing**: el subagente `revisor-visual` corrió DOS veces sobre la landing (2026-08-14).
+   1ª pasada: NO LISTA (19/40, 9/20, 12/20) — 5 defectos, 4 corregidos (bug de captura fullPage con
+   framer-motion, 3 páginas legales creadas, badge de trial ya no dice "gratis", label del carrusel
+   traducido). 2ª pasada: NO LISTA pero con salto grande (25/40, 14/20 craft, 14/20 copy) — encontró
+   un defecto NUEVO más grave: todos los CTA de la landing apuntan a `/onboarding` y `/entrar`, rutas
+   que **todavía no existen** (son trabajo de la Sesión 4, no de la landing) → 404. Se corrigió lo
+   que sí dependía de la landing: (a) `app/not-found.tsx` en español ya existe y se verificó
+   navegando a una ruta inexistente, (b) el botón del plan Anual decía "Empezar mis 7 días gratis"
+   (mismo problema de honestidad que el badge, pero en el CTA) → ahora dice "Empezar mi prueba de
+   $0.99" (verificado visualmente). Los otros 2 defectos menores de la 2ª pasada (garantía no nombrada
+   junto al CTA de compra, dispositivo ownable "grid técnico" de FICHA-ARTE ausente en la landing)
+   quedan como pulido pendiente para la Sesión 7.
+   **DECISIÓN:** no se relanza una 3ª vez el revisor-visual sobre la landing sola — el defecto que
+   más pesa (CTAs a rutas inexistentes) es una DEPENDENCIA SECUENCIAL de la Sesión 4, no arreglable
+   sin construirla. El veredicto formal ≥36/40 y ≥16/20 se persigue DESPUÉS de que exista
+   `/onboarding` y `/entrar` (Sesión 4), re-tomando el screenshot y relanzando el revisor sobre el
+   funnel completo landing→onboarding→login. Hasta entonces la landing queda "corregida en lo que
+   depende de sí misma, veredicto final pendiente de la Sesión 4".
 2. **garantia-resuelta**: se creó `FICHA-MERCADO.md` con Prueba=7 días / Garantía=14 días (14>7,
    regla dura cumplida). Pendiente CRÍTICO: verificar en Sesión 6, al conectar la cuenta real de
    Hotmart, que el panel permite configurar 14 días de garantía — si el máximo real fuera menor,

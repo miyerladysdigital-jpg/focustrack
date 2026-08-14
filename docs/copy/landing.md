@@ -61,7 +61,7 @@ stack:
 - `Reprogramación ilimitada + buzón sin límite` → `incluido`
 - totalTachado: `$47.88` · nota: `Hoy: $24.99/año (equivale a $2.08/mes)`
 anual: nombre `Anual` · badge `MÁS POPULAR` · precioMes `$2.08` · totalAnual `Se cobra $24.99/año` ·
-  ahorro `6 meses gratis` · descomposicionDia `menos de $0.07 al día` · ctaLabel `Empezar mis 7 días gratis`
+  ahorro `6 meses gratis` · descomposicionDia `menos de $0.07 al día` · ctaLabel `Empezar mi prueba de $0.99` (hallazgo del revisor-visual: el botón seguía diciendo "gratis" para un trial pagado, corregido)
   features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Sync con tu calendario`
 mensual: nombre `Mensual` · precioMes `$3.99` · ctaLabel `Elegir mensual`
   features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Cancelas cuando quieras`
