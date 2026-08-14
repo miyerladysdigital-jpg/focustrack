@@ -24,6 +24,42 @@ const targets = [
     fullPage: true,
     waitUntil: 'domcontentloaded',
   },
+  {
+    url: 'http://localhost:3000/onboarding',
+    out: 'docs/revisiones/onboarding-375.png',
+    width: 375,
+    height: 812,
+    fullPage: false, // pantalla de pregunta única — no hay scroll (A2, una pregunta por pantalla)
+    waitUntil: 'domcontentloaded',
+  },
+  {
+    url: 'http://localhost:3000/paywall',
+    out: 'docs/revisiones/paywall-375.png',
+    width: 375,
+    height: 812,
+    fullPage: true,
+    waitUntil: 'domcontentloaded',
+    // El paywall real siempre llega DESPUÉS del onboarding (con respuestas guardadas) —
+    // sembrar localStorage para que la captura muestre la experiencia personalizada real,
+    // no el estado de fallback (acceso directo sin completar el quiz).
+    seedLocalStorage: {
+      focustrack_onboarding: JSON.stringify({
+        dolor: 'Una interrupción desordena todo mi día',
+        momento: 'Al empezar la mañana',
+        energia: 'Alta — puedo con lo difícil',
+        prioridad: 'Escribir propuesta para cliente nuevo',
+        diasSemana: 5,
+      }),
+    },
+  },
+  {
+    url: 'http://localhost:3000/app',
+    out: 'docs/revisiones/app-principal-375.png',
+    width: 375,
+    height: 812,
+    fullPage: false, // Hoy no debe tener scroll en el caso típico (32 — estructura sin vacío)
+    waitUntil: 'domcontentloaded',
+  },
 ];
 
 const browser = await puppeteer.launch({
@@ -36,6 +72,14 @@ for (const t of targets) {
   const page = await browser.newPage();
   await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
   await page.setViewport({ width: t.width, height: t.height });
+  if (t.seedLocalStorage) {
+    // localStorage solo se puede setear en el ORIGEN correcto: cargar la página primero,
+    // sembrar, y recargar para que el componente la lea al montar.
+    await page.goto(t.url, { waitUntil: t.waitUntil, timeout: 60000 });
+    await page.evaluate((seed) => {
+      for (const [k, v] of Object.entries(seed)) window.localStorage.setItem(k, v);
+    }, t.seedLocalStorage);
+  }
   await page.goto(t.url, { waitUntil: t.waitUntil, timeout: 60000 });
   // Grace period for fonts/CSS to arrive opportunistically — best effort,
   // not a hard requirement (see waitUntil comment above).

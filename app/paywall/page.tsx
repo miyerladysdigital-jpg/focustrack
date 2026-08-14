@@ -19,7 +19,7 @@ export default function PaywallPage() {
   const { answers } = useAnswers();
   const [plan, setPlan] = useState<PlanId>('anual');
 
-  const meta = answers.prioridad ? `"${answers.prioridad}"` : 'tu día';
+  const meta = answers.prioridad ? `"${answers.prioridad}"` : null;
 
   return (
     <FunnelScreen>
@@ -36,7 +36,15 @@ export default function PaywallPage() {
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
         <h1 className="mt-2 text-balance text-[28px] font-bold leading-[1.15] [font-family:var(--font-display)]">
-          Tu día ya tiene un plan para <span className="text-[var(--accent)]">{meta}</span>
+          {meta ? (
+            <>
+              Tu día ya tiene un plan para <span className="text-[var(--accent)]">{meta}</span>
+            </>
+          ) : (
+            <>
+              Tu <span className="text-[var(--accent)]">Botón de Reprogramación Sin Culpa</span> está listo
+            </>
+          )}
         </h1>
         <p className="mt-2 text-[14px] text-[var(--text-secondary)]">Hecho con tus respuestas de recién.</p>
       </motion.div>
