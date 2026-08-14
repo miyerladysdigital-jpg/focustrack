@@ -188,11 +188,12 @@ competencia) · "visual routine tracker" (medio, alta conversión).
    junto al CTA de compra, dispositivo ownable "grid técnico" de FICHA-ARTE ausente en la landing)
    quedan como pulido pendiente para la Sesión 7.
    **DECISIÓN:** no se relanza una 3ª vez el revisor-visual sobre la landing sola — el defecto que
-   más pesa (CTAs a rutas inexistentes) es una DEPENDENCIA SECUENCIAL de la Sesión 4, no arreglable
-   sin construirla. El veredicto formal ≥36/40 y ≥16/20 se persigue DESPUÉS de que exista
-   `/onboarding` y `/entrar` (Sesión 4), re-tomando el screenshot y relanzando el revisor sobre el
-   funnel completo landing→onboarding→login. Hasta entonces la landing queda "corregida en lo que
-   depende de sí misma, veredicto final pendiente de la Sesión 4".
+   más pesa (CTAs a rutas inexistentes) es una DEPENDENCIA SECUENCIAL de la Sesión 4 (el onboarding
+   NO está construido — NO iniciado todavía), no arreglable sin construirla primero. El veredicto
+   formal ≥36/40 y ≥16/20 de la landing se persigue DESPUÉS de que la Sesión 4 quede lista, volviendo
+   a tomar el screenshot y relanzando el revisor sobre el recorrido landing → onboarding → login ya
+   navegable de punta a punta. Hasta entonces la landing queda "corregida en lo que depende de sí
+   misma; veredicto final pendiente de la Sesión 4".
 2. **garantia-resuelta**: se creó `FICHA-MERCADO.md` con Prueba=7 días / Garantía=14 días (14>7,
    regla dura cumplida). Pendiente CRÍTICO: verificar en Sesión 6, al conectar la cuenta real de
    Hotmart, que el panel permite configurar 14 días de garantía — si el máximo real fuera menor,
