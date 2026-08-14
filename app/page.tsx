@@ -29,7 +29,7 @@ export default function LandingFocusTrack() {
         appName="FocusTrack"
         loginHref="/entrar"
         h1Marked="Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa."
-        subtitleMarked="El planificador visual para mentes con TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b]."
+        subtitleMarked="El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b]."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
         socialProof={<span>Recién lanzamos: 7 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.</span>}
@@ -40,10 +40,10 @@ export default function LandingFocusTrack() {
       <Problema
         titulo="¿Te suena?"
         preguntas={[
-          { icon: Inbox, textoMarked: '¿Te despiertas viendo una lista tan larga que no sabes [b]por dónde empezar[/b]?' },
-          { icon: RefreshCw, textoMarked: '¿Una sola llamada imprevista te desordena todo el día y ya no logras retomarlo?' },
-          { icon: CreditCard, textoMarked: '¿Te da miedo probar otra app porque la última [b]te cobró algo que no entendiste[/b]?' },
-          { icon: Moon, textoMarked: '¿Te acuestas sintiéndote un fracaso por todo lo que no alcanzaste a hacer hoy?' },
+          { icon: Inbox, textoMarked: '¿Te despiertas viendo una lista larga que no sabes [b]por dónde empezar[/b]?' },
+          { icon: RefreshCw, textoMarked: '¿Una llamada imprevista te desordena el día y ya no logras retomarlo?' },
+          { icon: CreditCard, textoMarked: '¿Te da miedo otra app porque la última [b]te cobró algo raro[/b]?' },
+          { icon: Moon, textoMarked: '¿Te acuestas sintiéndote un fracaso por lo que no hiciste hoy?' },
         ]}
       />
 
@@ -51,7 +51,7 @@ export default function LandingFocusTrack() {
       <Agitacion
         frases={[
           'Cada mes pierdes horas reconstruyendo tu día a mano — y [b]dinero en apps[/b] que terminas abandonando.',
-          'En 1 año eso es decenas de horas que no vuelven, más la culpa que se acumula cada noche.',
+          'En 1 año eso es decenas de horas que no vuelven, más la culpa acumulada cada noche.',
           'Otra lista de tareas no lo arregla: [acento]más lista no es más control[/acento].',
         ]}
         contraste={{
@@ -95,7 +95,7 @@ export default function LandingFocusTrack() {
 
       {/* 6. OFERTA */}
       <Oferta
-        tituloMarked="Prueba 7 días por $0.99. Sigue por [acento]$2.08 al mes[/acento]"
+        tituloMarked="Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]"
         trialDias={7}
         stack={{
           lineas: [
@@ -139,7 +139,7 @@ export default function LandingFocusTrack() {
       <Garantia
         nombre="la Garantía Cero Sorpresas"
         condicionMarked="Te avisamos [b]3 días antes[/b] de cada cobro y cancelas en 1 toque, sin llamadas ni formularios. Si el trial no te convenció, no pagas nada más."
-        pisoLegal="Respaldada por la garantía Hotmart de 7 días"
+        pisoLegal="Respaldada por 14 días de garantía Hotmart"
       />
 
       {/* 8. FAQ */}

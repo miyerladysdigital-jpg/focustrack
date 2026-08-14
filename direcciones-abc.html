@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direcciones de arte A/B/C — FocusTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;600;700&family=Gantari:wght@400;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=Chivo:wght@400;600;700&family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: #ececee;
+    color: #1c1c1f;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 32px 20px 64px;
+  }
+  .cabecera { max-width: 1180px; margin: 0 auto 12px; }
+  .cabecera h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .cabecera p.sub { margin-top: 6px; font-size: 14px; color: #55555c; max-width: 70ch; }
+
+  .salidas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .salidas span {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid #c9c9cf; border-radius: 999px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 600; color: #3a3a40;
+    background: #f7f7f8;
+  }
+  .salidas b { color: #1c1c1f; }
+  .aviso-fuentes {
+    max-width: 1180px; margin: 10px auto 28px; font-size: 12.5px; color: #6a6a72;
+  }
+
+  .opciones { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px;
+              grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+
+  .opcion { display: flex; flex-direction: column; gap: 18px; }
+
+  .meta { background: #f7f7f8; border: 1px solid #d9d9de; border-radius: 14px; padding: 18px; }
+  .meta .letra {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px; font-weight: 800; font-size: 15px;
+    color: #f7f7f8; background: #1c1c1f; margin-right: 8px;
+  }
+  .meta h2 { display: flex; align-items: center; font-size: 17px; font-weight: 700; }
+  .meta .direccion { margin-top: 4px; font-size: 13px; color: #55555c; }
+  .hipotesis { margin-top: 10px; font-size: 13px; line-height: 1.5; color: #3a3a40; }
+  .meta ul.tokens { margin-top: 10px; list-style: none; font-size: 12px; color: #6a6a72;
+                    font-family: ui-monospace, monospace; line-height: 1.7; }
+
+  .especimen { margin-top: 12px; border-top: 1px solid #d9d9de; padding-top: 12px; }
+  .especimen .esp-display { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+  .especimen .esp-body { margin-top: 4px; font-size: 13.5px; color: #3a3a40; }
+
+  .telefono {
+    width: 310px; margin: 0 auto;
+    aspect-ratio: 9 / 19.5;
+    border: 10px solid #101014;
+    border-radius: 46px;
+    box-shadow: 0 24px 60px rgb(20 18 24 / 0.28);
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .statusbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px 6px; font-size: 13px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .statusbar .der { display: flex; align-items: center; gap: 5px; }
+  .home-indicator {
+    position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+    width: 116px; height: 5px; border-radius: 999px; opacity: 0.85;
+  }
+  .pantalla { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .chip-icono {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; flex-shrink: 0;
+  }
+  .cta {
+    display: flex; align-items: center; justify-content: center;
+    height: 48px; font-size: 15px; font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  /* ============================ OPCIÓN A — Foco Directo (Brutalista suave) ============================ */
+  .op-a {
+    --bg: #f2f0eb;
+    --surface: #fbfaf7;
+    --text-1: #1c1b18;
+    --text-2: #5f5d56;
+    --accent: #2743d6;
+    --radius-card: 8px;
+    --radius-btn: 8px;
+    --font-display: 'Archivo Black', monospace;
+    --font-body: 'Work Sans', monospace;
+  }
+  .op-a .especimen .esp-display { font-family: var(--font-display); }
+  .op-a .especimen .esp-body { font-family: var(--font-body); }
+  .op-a .telefono { background: var(--bg); }
+  .op-a .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 18px; }
+  .op-a .statusbar, .op-a .home-indicator { color: var(--text-1); background: var(--text-1); }
+  .op-a .saludo { margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .op-a h3.titulo-a {
+    font-family: var(--font-body); font-size: 22px; font-weight: 700;
+    line-height: 1.15; letter-spacing: -0.01em; margin-top: 2px;
+  }
+  .op-a .heroe {
+    margin-top: 14px; border-radius: var(--radius-card);
+    border: 2px solid var(--text-1);
+    background: var(--surface);
+    box-shadow: 4px 4px 0 0 var(--text-1);
+    padding: 16px;
+  }
+  .op-a .heroe .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+  .op-a .heroe .dato {
+    font-family: var(--font-display); font-size: 26px; font-weight: 700;
+    line-height: 1.15; margin-top: 4px;
+  }
+  .op-a .heroe .insight { margin-top: 6px; font-size: 12.5px; color: var(--text-2); font-weight: 600; }
+  .op-a .card {
+    margin-top: 10px; background: var(--surface); border-radius: var(--radius-card);
+    border: 2px solid var(--text-1);
+    padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .op-a .chip-icono { border-radius: 6px; background: color-mix(in oklab, var(--accent) 12%, transparent); border: 2px solid var(--text-1); }
+  .op-a .card .hora { font-size: 11px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .op-a .card h4 { font-size: 14px; font-weight: 700; }
+  .op-a .card p { margin-top: 2px; font-size: 12px; color: var(--text-2); line-height: 1.4; }
+  .op-a .cta {
+    margin-top: auto; margin-bottom: 26px; border-radius: var(--radius-btn);
+    background: var(--accent); color: #fff; border: 2px solid var(--text-1);
+    box-shadow: 3px 3px 0 0 var(--text-1);
+  }
+
+  /* ============================ OPCIÓN B — Calma Clínica ============================ */
+  .op-b {
+    --bg: #f4f7f6;
+    --surface: #fdfefd;
+    --text-1: #22302c;
+    --text-2: #667a74;
+    --accent: #0f766e;
+    --radius-card: 16px;
+    --radius-btn: 12px;
+    --font-display: 'Gantari', monospace;
+    --font-body: 'Atkinson Hyperlegible', monospace;
+  }
+  .op-b .especimen .esp-display { font-family: var(--font-display); }
+  .op-b .especimen .esp-body { font-family: var(--font-body); }
+  .op-b .telefono { background: var(--bg); }
+  .op-b .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 18px; }
+  .op-b .statusbar { color: var(--text-1); }
+  .op-b .home-indicator { background: var(--text-1); }
+  .op-b .encabezado-b { margin-top: 12px; text-align: center; }
+  .op-b .encabezado-b .periodo { font-size: 11.5px; font-weight: 600; color: var(--text-2); }
+  .op-b h3.titulo-b {
+    font-family: var(--font-display); font-size: 19px; font-weight: 700;
+    letter-spacing: -0.01em; margin-top: 2px;
+  }
+  .op-b .anillo-wrap { margin: 14px auto 0; position: relative; width: 116px; height: 116px; }
+  .op-b .anillo-wrap .centro {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .op-b .anillo-wrap .pct {
+    font-family: var(--font-display); font-size: 26px; font-weight: 700;
+  }
+  .op-b .anillo-wrap .pct-label { font-size: 10px; color: var(--text-2); font-weight: 600; }
+  .op-b .grid2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .op-b .tile {
+    background: var(--surface); border-radius: var(--radius-card);
+    border: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
+    padding: 12px;
+  }
+  .op-b .tile.destacada { border: 1.5px solid var(--accent); }
+  .op-b .tile .t-label { font-size: 10.5px; font-weight: 600; color: var(--text-2); }
+  .op-b .tile .t-dato {
+    margin-top: 6px; font-family: var(--font-display); font-size: 19px; font-weight: 700;
+  }
+  .op-b .cta {
+    margin-top: auto; margin-bottom: 26px; border-radius: var(--radius-btn);
+    background: var(--accent); color: #fff;
+    box-shadow: 0 8px 24px color-mix(in oklab, var(--accent) 28%, transparent);
+  }
+
+  /* ============================ OPCIÓN C — Bloques de Campo (Salvia técnica) ============================ */
+  .op-c {
+    --bg: #eff2ed;
+    --surface: #f9fbf7;
+    --text-1: #242b24;
+    --text-2: #667066;
+    --accent: #3d6b4f;
+    --radius-card: 10px;
+    --radius-btn: 8px;
+    --font-display: 'Chivo', monospace;
+    --font-body: 'Hanken Grotesk', monospace;
+  }
+  .op-c .especimen .esp-display { font-family: var(--font-display); }
+  .op-c .especimen .esp-body { font-family: var(--font-body); }
+  .op-c .telefono {
+    background:
+      linear-gradient(color-mix(in oklab, var(--text-1) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--text-1) 4%, transparent) 1px, transparent 1px),
+      var(--bg);
+    background-size: 22px 22px, 22px 22px, 100% 100%;
+  }
+  .op-c .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 20px; }
+  .op-c .statusbar, .op-c .home-indicator { color: var(--text-1); background: var(--text-1); }
+  .op-c .masthead { margin-top: 10px; }
+  .op-c .masthead .edicion { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em;
+                             text-transform: uppercase; color: var(--text-2); }
+  .op-c h3.titulo-c {
+    font-family: var(--font-display); font-size: 22px; font-weight: 700;
+    line-height: 1.15; margin-top: 2px;
+  }
+  /* Hero stat — el "material premium": hairline degradada + sombra tintada */
+  .op-c .heroe-c {
+    margin-top: 14px; border-radius: var(--radius-card);
+    border: 1.5px solid transparent;
+    background:
+      linear-gradient(var(--surface), var(--surface)) padding-box,
+      linear-gradient(135deg, color-mix(in oklab, var(--accent) 45%, transparent), transparent 65%) border-box;
+    box-shadow: 0 10px 26px -12px color-mix(in oklab, var(--accent) 55%, transparent);
+    padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  }
+  .op-c .heroe-c .anillo-mini { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+  .op-c .heroe-c .anillo-mini .centro-mini {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--accent);
+  }
+  .op-c .heroe-c .label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                           letter-spacing: 0.04em; color: var(--text-2); }
+  .op-c .heroe-c .dato { margin-top: 2px; font-family: var(--font-display); font-size: 15px;
+                          font-weight: 700; color: var(--text-1); }
+  .op-c .timeline { margin-top: 14px; display: flex; flex-direction: column; }
+  .op-c .evento { display: grid; grid-template-columns: 44px 14px 1fr; gap: 0 8px;
+                  padding-bottom: 12px; position: relative; }
+  .op-c .evento .hora { font-size: 12px; font-weight: 700; color: var(--text-2);
+                        font-variant-numeric: tabular-nums; padding-top: 10px; }
+  .op-c .evento .nodo { position: relative; display: flex; justify-content: center; }
+  .op-c .evento .nodo::before {
+    content: ''; position: absolute; top: 20px; bottom: -2px; width: 1.5px;
+    background: repeating-linear-gradient(180deg, var(--text-2) 0 3px, transparent 3px 6px);
+  }
+  .op-c .evento:last-child .nodo::before { display: none; }
+  .op-c .evento .punto {
+    width: 10px; height: 10px; border-radius: 3px; margin-top: 13px;
+    border: 2px solid var(--text-2); background: var(--bg); z-index: 1;
+  }
+  .op-c .evento.activo .punto { border-color: var(--accent); background: var(--accent); }
+  .op-c .tarjeta-evento {
+    background: var(--surface); border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--text-2) 16%, transparent);
+    padding: 8px 12px;
+  }
+  .op-c .evento.activo .tarjeta-evento {
+    border-color: color-mix(in oklab, var(--accent) 35%, transparent);
+    box-shadow: 0 6px 16px -8px color-mix(in oklab, var(--accent) 45%, transparent);
+  }
+  .op-c .evento h4 { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .op-c .evento.activo h4 { color: var(--accent); }
+  .op-c .evento p { margin-top: 2px; font-size: 12px; color: var(--text-2); line-height: 1.4; }
+  .op-c .cierre-nota {
+    margin-top: 4px; border-radius: var(--radius-card);
+    background: var(--surface); border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+    padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .op-c .chip-icono { width: 36px; height: 36px; border-radius: var(--radius-btn);
+                       background: color-mix(in oklab, var(--accent) 12%, transparent); }
+  .op-c .cierre-nota p { font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+  .op-c .cierre-nota p b { color: var(--text-1); }
+  .op-c .cta {
+    margin-top: auto; margin-bottom: 26px; border-radius: var(--radius-btn);
+    background: var(--accent); color: #fff;
+    box-shadow: 0 8px 22px color-mix(in oklab, var(--accent) 28%, transparent);
+  }
+
+  .pie {
+    max-width: 1180px; margin: 40px auto 0; font-size: 12.5px; color: #6a6a72;
+    border-top: 1px solid #d0d0d6; padding-top: 14px; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header class="cabecera">
+  <h1>Dirección de arte — 3 opciones para FocusTrack</h1>
+  <p class="sub">
+    La misma pantalla (Timeline de hoy), tres direcciones distintas. Las tres parten de Structured
+    (bloques de tiempo, funcional) pero cada una le da su propia personalidad.
+  </p>
+  <div class="salidas" role="list">
+    <span role="listitem"><b>1 · Elegir</b> A, B o C</span>
+    <span role="listitem"><b>2 · Combinar</b> («la C pero con el color de la A»)</span>
+    <span role="listitem"><b>3 · Pedir otras 3</b> direcciones nuevas</span>
+    <span role="listitem"><b>4 · Ajustar un detalle</b> («la B con el acento más oscuro»)</span>
+  </div>
+</header>
+<p class="aviso-fuentes">
+  El nombre de cada fuente se muestra abajo EN su propia tipografía — así se ve si cargó bien.
+</p>
+
+<div class="opciones">
+
+  <!-- ═══════════════════════ OPCIÓN A — Foco Directo ═══════════════════════ -->
+  <section class="opcion op-a" aria-label="Opción A">
+    <div class="meta">
+      <h2><span class="letra">A</span> Foco Directo</h2>
+      <p class="direccion">Bloques con borde marcado y sombra dura · claro · azul de confianza</p>
+      <p class="hipotesis"><strong>Por qué funciona:</strong> el borde grueso y la sombra dura comunican
+        "esto es sólido y honesto" — refuerza la transparencia radical sin sentirse frío ni corporativo.</p>
+      <ul class="tokens">
+        <li>--bg #F2F0EB · --accent #2743D6</li>
+        <li>Archivo Black + Work Sans</li>
+      </ul>
+      <div class="especimen">
+        <p class="esp-display">Archivo Black — AaBbÑñ 0123</p>
+        <p class="esp-body">Work Sans — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der"></span></div>
+      <div class="pantalla">
+        <p class="saludo">Martes 18 de agosto</p>
+        <h3 class="titulo-a">Tu día, en bloques</h3>
+        <div class="heroe">
+          <p class="label">Reprogramación sin culpa</p>
+          <p class="dato">3 tareas movidas</p>
+          <p class="insight">Nada se perdió. Solo se acomodó.</p>
+        </div>
+        <div class="card">
+          <span class="hora">9:00</span>
+          <div><h4>Escribir propuesta</h4><p>Bloque de foco · 90 min</p></div>
+        </div>
+        <div class="card">
+          <span class="hora">11:30</span>
+          <div><h4>Vaciar el buzón</h4><p>4 pensamientos guardados hoy</p></div>
+        </div>
+        <div class="cta">Reprogramar mi día</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ OPCIÓN B — Calma Clínica ═══════════════════════ -->
+  <section class="opcion op-b" aria-label="Opción B">
+    <div class="meta">
+      <h2><span class="letra">B</span> Calma Clínica</h2>
+      <p class="direccion">Anillo de energía + tiles · claro · teal de confianza</p>
+      <p class="hipotesis"><strong>Por qué funciona:</strong> tipografía Atkinson Hyperlegible (diseñada
+        para máxima legibilidad) + cero sobre-estímulo — ideal para un usuario con fatiga cognitiva.</p>
+      <ul class="tokens">
+        <li>--bg #F4F7F6 · --accent #0F766E</li>
+        <li>Gantari + Atkinson Hyperlegible</li>
+      </ul>
+      <div class="especimen">
+        <p class="esp-display">Gantari — AaBbÑñ 0123</p>
+        <p class="esp-body">Atkinson Hyperlegible — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der"></span></div>
+      <div class="pantalla">
+        <div class="encabezado-b">
+          <p class="periodo">Martes 18 de agosto</p>
+          <h3 class="titulo-b">Tu energía hoy: alta</h3>
+        </div>
+        <div class="anillo-wrap">
+          <svg width="116" height="116" viewBox="0 0 132 132">
+            <circle cx="66" cy="66" r="57" fill="none" stroke-width="11" stroke="rgba(15,118,110,0.14)"/>
+            <circle cx="66" cy="66" r="57" fill="none" stroke-width="11" stroke="#0f766e" stroke-linecap="round"
+                    stroke-dasharray="358.1" stroke-dashoffset="114.6" transform="rotate(-90 66 66)"/>
+          </svg>
+          <div class="centro"><span class="pct">2/3</span><span class="pct-label">bloques listos</span></div>
+        </div>
+        <div class="grid2x2">
+          <div class="tile destacada"><p class="t-label">Ahora</p><p class="t-dato">Propuesta</p></div>
+          <div class="tile"><p class="t-label">Buzón</p><p class="t-dato">4 notas</p></div>
+        </div>
+        <div class="cta">Ver mi día completo</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ OPCIÓN C — Bloques de Campo ═══════════════════════ -->
+  <section class="opcion op-c" aria-label="Opción C">
+    <div class="meta">
+      <h2><span class="letra">C</span> Bloques de Campo</h2>
+      <p class="direccion">Timeline vertical con nodos · claro · verde salvia</p>
+      <p class="hipotesis"><strong>Por qué funciona:</strong> la línea de tiempo ES el timeline real
+        del producto — el usuario ve exactamente lo que va a usar todos los días, sin traducir nada.</p>
+      <ul class="tokens">
+        <li>--bg #EFF2ED · --accent #3D6B4F</li>
+        <li>Chivo + Hanken Grotesk</li>
+      </ul>
+      <div class="especimen">
+        <p class="esp-display">Chivo — AaBbÑñ 0123</p>
+        <p class="esp-body">Hanken Grotesk — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der"></span></div>
+      <div class="pantalla">
+        <div class="masthead">
+          <p class="edicion">Martes 18 de agosto</p>
+          <h3 class="titulo-c">3 bloques para hoy</h3>
+        </div>
+        <div class="heroe-c">
+          <div class="anillo-mini">
+            <svg width="52" height="52" viewBox="0 0 52 52">
+              <circle cx="26" cy="26" r="22" fill="none" stroke-width="6" stroke="rgba(61,107,79,0.15)"/>
+              <circle cx="26" cy="26" r="22" fill="none" stroke-width="6" stroke="#3d6b4f" stroke-linecap="round"
+                      stroke-dasharray="138.2" stroke-dashoffset="46" transform="rotate(-90 26 26)"/>
+            </svg>
+            <span class="centro-mini">1/3</span>
+          </div>
+          <div>
+            <p class="label">Racha sin culpa</p>
+            <p class="dato">5 días seguidos</p>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="evento activo">
+            <span class="hora">9:00</span><span class="nodo"><span class="punto"></span></span>
+            <div class="tarjeta-evento"><h4>Escribir propuesta</h4><p>Tu bloque de más energía</p></div>
+          </div>
+          <div class="evento">
+            <span class="hora">11:30</span><span class="nodo"><span class="punto"></span></span>
+            <div class="tarjeta-evento"><h4>Vaciar el buzón</h4><p>4 pensamientos guardados</p></div>
+          </div>
+          <div class="evento">
+            <span class="hora">16:00</span><span class="nodo"><span class="punto"></span></span>
+            <div class="tarjeta-evento"><h4>Llamada de seguimiento</h4><p>15 min · ya con todo listo</p></div>
+          </div>
+        </div>
+        <div class="cierre-nota">
+          <p><b>Se movió algo sin querer?</b> Reprogramar no cuesta nada — ni culpa.</p>
+        </div>
+        <div class="cta">Empezar mi bloque de las 9</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="pie">
+  Las tres parten de la misma referencia (Structured) pero divergen en composición, tipografía y
+  temperamento — ninguna es un borrador. La elegida se guarda en FICHA-ARTE.md y ESTADO.md.
+</footer>
+
+</body>
+</html>

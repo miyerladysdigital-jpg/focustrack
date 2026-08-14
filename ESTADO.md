@@ -174,4 +174,26 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 7. Sesión 8 — Adquisición y lanzamiento.
 
 ## Problemas conocidos
-Ninguno aún.
+
+1. **veredicto-pendiente**: falta el pase formal del subagente `revisor-visual` sobre la landing
+   (rúbricas ≥36/40 usabilidad y ≥16/20 craft) y escribir `docs/revisiones/landing-veredicto.md`.
+   Ya existen `docs/revisiones/landing-375.png` y `docs/revisiones/direcciones-abc.png`, pero el
+   primero se generó con un bug (los reveals de framer-motion no se dispararon en la captura
+   fullPage) — el script `scripts/screenshot.mjs` ya se corrigió (hace scroll por toda la página
+   antes de capturar) pero falta volver a correrlo y re-tomar `landing-375.png`.
+2. **garantia-resuelta**: se creó `FICHA-MERCADO.md` con Prueba=7 días / Garantía=14 días (14>7,
+   regla dura cumplida). Pendiente CRÍTICO: verificar en Sesión 6, al conectar la cuenta real de
+   Hotmart, que el panel permite configurar 14 días de garantía — si el máximo real fuera menor,
+   ajustar el copy antes de abrir tráfico.
+3. **hidratacion-framer-motion**: warning de hidratación (no bloqueante) por los componentes
+   `motion.*` del kit de landing — revisar en Sesión 7 (pulido/testing), no es urgente.
+4. **direcciones-abc-en-raiz**: ya existe `direcciones-abc.html` en la raíz (copia de
+   `direcciones-abc-focustrack.html`) para satisfacer el gate de evidencia del protocolo A/B/C.
+5. Placeholders honestos pendientes de reemplazar en Sesión 5/6: screenshots reales de la app en
+   el hero y el carrusel, y el email de soporte (`soporte@focustrack.app`) cuando exista el dominio real.
+
+## SESIÓN PAUSADA A PEDIDO DEL USUARIO — 2026-08-13
+Se retoma desde aquí: correr de nuevo `node scripts/screenshot.mjs` (ya arreglado), lanzar el
+subagente `revisor-visual` con ese screenshot + `app/page.tsx` + FICHA-ARTE.md + FICHA-AVATAR.md,
+y con su veredicto ≥36/40 y ≥16/20 recién ahí la Sesión 3 (landing) queda formalmente cerrada.
+Después: Sesión 4 (onboarding, paywall, login).

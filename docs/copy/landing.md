@@ -10,7 +10,7 @@ Modelo: 2 (onboarding-first, variante anónima) → CTA_HREF = `/onboarding`, CT
 
 ## 1. HERO
 - h1Marked: `Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa.`
-- subtitleMarked: `El planificador visual para mentes con TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b].`
+- subtitleMarked: `El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b].` (13 palabras, presupuesto 14)
 - ctaLabel: `Crear mi plan gratis`
 - socialProof: `Recién lanzamos: 7 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.`
 - visualPlaceholderSugerencia: `captura del timeline de hoy con el Botón de Reprogramación Sin Culpa visible`
@@ -18,15 +18,15 @@ Modelo: 2 (onboarding-first, variante anónima) → CTA_HREF = `/onboarding`, CT
 ## 2. PROBLEMA
 titulo: `¿Te suena?`
 preguntas (icon sugerido → texto):
-1. Inbox → `¿Te despiertas viendo una lista tan larga que no sabes [b]por dónde empezar[/b]?`
-2. Repeat → `¿Una sola llamada imprevista te desordena todo el día y ya no logras retomarlo?`
-3. AlarmClock → `¿Te da miedo probar otra app porque la última [b]te cobró algo que no entendiste[/b]?`
-4. BatteryLow → `¿Te acuestas sintiéndote un fracaso por todo lo que no alcanzaste a hacer hoy?`
+1. Inbox → `¿Te despiertas viendo una lista larga que no sabes [b]por dónde empezar[/b]?` (12 palabras, presupuesto 12)
+2. RefreshCw → `¿Una llamada imprevista te desordena el día y ya no logras retomarlo?` (12 palabras)
+3. CreditCard → `¿Te da miedo otra app porque la última [b]te cobró algo raro[/b]?` (12 palabras)
+4. Moon → `¿Te acuestas sintiéndote un fracaso por lo que no hiciste hoy?` (11 palabras)
 
 ## 3. AGITACIÓN
 frases:
 - `Cada mes pierdes horas reconstruyendo tu día a mano — y [b]dinero en apps[/b] que terminas abandonando.`
-- `En 1 año eso es decenas de horas que no vuelven, más la culpa que se acumula cada noche.`
+- `En 1 año eso es decenas de horas que no vuelven, más la culpa acumulada cada noche.` (17 palabras, presupuesto 18)
 - `Otra lista de tareas no lo arregla: [acento]más lista no es más control[/acento].`
 contraste:
 - labelHoy: `Hoy` · hoy: `Una interrupción tumba tu agenda entera y el resto del día se pierde.`
@@ -53,7 +53,7 @@ frames:
 - `Vacía tu cabeza` → Buzón de pensamientos
 
 ## 6. OFERTA
-tituloMarked: `Prueba 7 días por $0.99. Sigue por [acento]$2.08 al día... al mes[/acento]`
+tituloMarked: `Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
 trialDias: 7
 stack:
 - `FocusTrack Pro (12 meses)` → `$47.88`
@@ -68,7 +68,7 @@ mensual: nombre `Mensual` · precioMes `$3.99` · ctaLabel `Elegir mensual`
 ## 7. GARANTÍA
 nombre: `la Garantía Cero Sorpresas`
 condicionMarked: `Te avisamos [b]3 días antes[/b] de cada cobro y cancelas en 1 toque, sin llamadas ni formularios. Si el trial no te convenció, no pagas nada más.`
-pisoLegal: `Respaldada por la garantía Hotmart de 7 días`
+pisoLegal: `Respaldada por 14 días de garantía Hotmart` (14 > 7 días de prueba — regla dura de 18-VENTA-HOTMART.md: la garantía debe durar más que la prueba, si no la cobertura real es cero)
 
 ## 8. FAQ
 1. `¿Voy a terminar abandonando esta app como las demás?` → `Tu primer día organizado sale en menos de 2 minutos, y [b]el Botón de Reprogramación Sin Culpa[/b] existe justo para los días en que se te complica seguir.`
