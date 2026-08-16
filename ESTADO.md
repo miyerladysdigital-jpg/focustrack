@@ -16,7 +16,38 @@ Sesión 5 — App interna: CONSTRUIDA (4 secciones: Hoy/Buzón/Semana/Cuenta, da
 "Andrea" — nunca vacía).
 Sesión 5.5 (2026-08-14) — Ronda de revisión de calidad + pasada de pulido (revisor-visual) sobre
 las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
-**Siguiente: Sesión 6** — conectar Supabase/Hotmart/Vercel/Resend/dominio (aquí el usuario crea cuentas).
+**Sesión 6 (2026-08-16) — EN CURSO** — conectando servicios reales:
+- GitHub: conectado y con el primer push hecho (`github.com/miyerladysdigital-jpg/focustrack`, repo privado).
+- Supabase: proyecto real conectado (`lsxgwtcsltrqtzesmawk`), esquema aplicado (profiles/blocks/
+  inbox_items/user_progress/subscriptions + RLS + trigger), auditoría de seguridad en 0 avisos.
+  `.env.local` con las claves reales (gitignored), `.env.example` con los nombres documentados.
+- Next.js 16 renombró `middleware.ts` a `proxy.ts` (mismo mecanismo, archivo/función con otro
+  nombre) — `proxy.ts` ya está creado y protege `/app/*`: sin sesión activa, redirige a `/login`
+  (verificado en el navegador).
+- **Login real conectado**: `app/login/page.tsx` ya llama a Supabase Auth de verdad (enlace mágico
+  por correo, sin contraseña) en vez de simularlo. `app/auth/confirm/route.ts` recibe el enlace y
+  abre la sesión en el servidor. Probado en el navegador con una cuenta real: el correo se envió
+  sin errores.
+  ⚠️ **Pendiente — paso manual tuyo en el panel de Supabase** (esto no se puede hacer por código):
+  entra a tu proyecto → Authentication → Email Templates → "Magic Link", y cambia el link del
+  correo a: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/app`.
+  Sin este cambio, el enlace del correo no va a abrir la sesión correctamente.
+- **Las 4 pantallas internas (Hoy/Buzón/Semana/Cuenta) ya leen y guardan en la base de datos
+  real** — `lib/app-data.ts` se reescribió manteniendo la misma forma que usaban las pantallas
+  (cero cambios en `app/app/page.tsx`, `buzon`, `semana`, `cuenta`), pero ahora cada acción
+  (marcar hecho, reprogramar, agregar al buzón, cancelar) escribe en Supabase en vez de en este
+  navegador. La racha ahora sube una vez por día real de uso (loop de retención activo).
+  `tsc`/`build` verificados sin errores.
+- **Resend conectado** como SMTP personalizado de Supabase (remitente temporal `onboarding@resend.dev`
+  hasta que exista el dominio real) — confirmado por el propio Supabase: el límite de correos por
+  hora subió de 2 (servicio interno) a 30 automáticamente al guardar el SMTP externo.
+  ⚠️ **Pendiente — el usuario aún no termina el paso de la plantilla**: el correo de enlace mágico
+  ya llega, pero sigue usando el link genérico de Supabase (`{{ .ConfirmationURL }}`, no reemplazado
+  todavía) — el usuario confirmó que el correo "solo confirma y ya", no lo mete a la app. Falta que
+  guarde el cambio de texto en Authentication → Email Templates → Magic Link (reemplazar por
+  `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/app`) — instrucciones
+  ya repetidas, esperando que el usuario confirme que lo guardó para volver a probar.
+- Siguiente: una vez cerrado el login real, Vercel (MCP ya conectado), webhook de Hotmart y dominio.
 
 ### Pasada de pulido (2026-08-14, tras cerrar la revisión de calidad — 7ª ronda de revisor-visual)
 El usuario pidió una pasada de pulido antes de pasar a Sesión 6. Se corrigieron los defectos

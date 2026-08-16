@@ -1,41 +1,56 @@
 'use client';
 
 // LOGIN — FocusTrack. Blueprint: 50-DISENO-ONBOARDING-PAYWALL.md sección E.
-// Método primario: magic link por email (decisión Hotmart-first de 26-AUTH-MODERNO.md).
-// Sin backend real todavía (Supabase Auth se conecta en Sesión 6) — este envío es un
-// MOCK con estado local: simula los 3 estados reales (enviando/enviado/error) para que
-// la UX quede diseñada y verificada antes de conectar el proveedor real (C3ter).
+// Método primario: magic link por email (decisión Hotmart-first de 26-AUTH-MODERNO.md),
+// conectado a Supabase Auth real. El enlace llega a app/auth/confirm/route.ts, que abre
+// la sesión en el servidor.
+// ⚠️ Pendiente de un paso manual en el dashboard de Supabase (no se puede hacer por código):
+// Authentication → Email Templates → Magic Link → cambiar el link a
+// {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/app
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Mail } from 'lucide-react';
 import { FunnelScreen } from '@/components/onboarding/ui';
+import { createClient } from '@/lib/supabase/client';
 
 type EstadoEnvio = 'idle' | 'enviando' | 'enviado' | 'error';
 
 export default function LoginPage() {
+  const [supabase] = useState(() => createClient());
   const [email, setEmail] = useState('');
   const [estado, setEstado] = useState<EstadoEnvio>('idle');
   const [cooldown, setCooldown] = useState(0);
 
-  const enviarEnlace = () => {
+  // Se lee directo de window (no useSearchParams) para no forzar esta pantalla a render
+  // dinámico solo por un parámetro de error opcional.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('error') === '1') setEstado('error');
+  }, []);
+
+  const enviarEnlace = async () => {
     if (!email.includes('@') || estado === 'enviando') return;
     setEstado('enviando');
-    // Mock: el envío real (Supabase Auth magic link) se conecta en Sesión 6.
-    setTimeout(() => {
-      setEstado('enviado');
-      setCooldown(60);
-      const interval = setInterval(() => {
-        setCooldown((c) => {
-          if (c <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return c - 1;
-        });
-      }, 1000);
-    }, 900);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=/app` },
+    });
+    if (error) {
+      setEstado('error');
+      return;
+    }
+    setEstado('enviado');
+    setCooldown(60);
+    const interval = setInterval(() => {
+      setCooldown((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
   };
 
   return (
