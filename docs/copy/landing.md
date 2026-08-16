@@ -12,7 +12,7 @@ Modelo: 2 (onboarding-first, variante anónima) → CTA_HREF = `/onboarding`, CT
 - h1Marked: `Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa.`
 - subtitleMarked: `El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b].` (13 palabras, presupuesto 14)
 - ctaLabel: `Crear mi plan gratis`
-- socialProof: `Recién lanzamos: 7 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.`
+- socialProof: `Recién lanzamos: 5 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.`
 - visualPlaceholderSugerencia: `captura del timeline de hoy con el Botón de Reprogramación Sin Culpa visible`
 
 ## 2. PROBLEMA
@@ -46,30 +46,32 @@ antesDespues:
 
 ## 5. LA APP POR DENTRO
 tituloMarked: `Tu día, [acento]ya organizado[/acento]`
-frames:
-- `Tu primer timeline` → Tu primer plan
-- `Tu día en bloques` → Timeline de hoy
-- `Reprograma sin culpa` → Reprogramación
-- `Vacía tu cabeza` → Buzón de pensamientos
+frames (screenshots REALES de /app, ya no placeholders — hallazgo del revisor-visual, corregido):
+- `Tu día en bloques` → /screenshots/hoy.png
+- `Vacía tu cabeza` → /screenshots/buzon.png
+- `Tu patrón semanal` → /screenshots/semana.png
+- `Tu plan, siempre claro` → /screenshots/cuenta.png
 
 ## 6. OFERTA
-tituloMarked: `Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
+tituloMarked: `Prueba 5 días por $0.99. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
 trialDias: 7
-trialLabel: `Prueba 7 días por $0.99` (el badge del kit dice por defecto "N días gratis" — nuestro trial es PAGADO, así que se sobrescribe explícitamente para no contradecir la promesa de "cero cobros ocultos". Hallazgo del revisor-visual, corregido.)
+trialLabel: `Prueba 5 días por $0.99` (el badge del kit dice por defecto "N días gratis" — nuestro trial es PAGADO, así que se sobrescribe explícitamente para no contradecir la promesa de "cero cobros ocultos". Hallazgo del revisor-visual, corregido.)
 stack:
 - `FocusTrack Pro (12 meses)` → `$47.88`
 - `Reprogramación ilimitada + buzón sin límite` → `incluido`
 - totalTachado: `$47.88` · nota: `Hoy: $24.99/año (equivale a $2.08/mes)`
 anual: nombre `Anual` · badge `MÁS POPULAR` · precioMes `$2.08` · totalAnual `Se cobra $24.99/año` ·
   ahorro `6 meses gratis` · descomposicionDia `menos de $0.07 al día` · ctaLabel `Empezar mi prueba de $0.99` (hallazgo del revisor-visual: el botón seguía diciendo "gratis" para un trial pagado, corregido)
-  features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Sync con tu calendario`
+  features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Se sincroniza con tu calendario`
 mensual: nombre `Mensual` · precioMes `$3.99` · ctaLabel `Elegir mensual`
   features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Cancelas cuando quieras`
 
 ## 7. GARANTÍA
 nombre: `la Garantía Cero Sorpresas`
 condicionMarked: `Te avisamos [b]3 días antes[/b] de cada cobro y cancelas en 1 toque, sin llamadas ni formularios. Si el trial no te convenció, no pagas nada más.`
-pisoLegal: `Respaldada por 14 días de garantía Hotmart` (14 > 7 días de prueba — regla dura de 18-VENTA-HOTMART.md: la garantía debe durar más que la prueba, si no la cobertura real es cero)
+pisoLegal: `Respaldada por 7 días de garantía Hotmart` (Hotmart solo permite 7 días de garantía como
+máximo — se bajó la prueba de 7 a 5 días para que la garantía siga cubriendo el primer cobro real,
+regla dura de 18-VENTA-HOTMART.md: la garantía debe durar más que la prueba)
 
 ## 8. FAQ
 1. `¿Voy a terminar abandonando esta app como las demás?` → `Tu primer día organizado sale en menos de 2 minutos, y [b]el Botón de Reprogramación Sin Culpa[/b] existe justo para los días en que se te complica seguir.`
@@ -77,12 +79,13 @@ pisoLegal: `Respaldada por 14 días de garantía Hotmart` (14 > 7 días de prueb
 3. `¿Es caro?` → `El plan anual sale a $2.08 al mes — menos de lo que cuesta un café. Y puedes cancelar cuando quieras.`
 4. `¿Es seguro pagar con mi tarjeta?` → `Pagas por Hotmart — nunca vemos tus datos de tarjeta, y cancelas con un correo.`
 5. `¿Por qué no uso una lista de tareas normal?` → `Una lista guarda tareas; FocusTrack [b]decide y reorganiza[/b] cuando tu día cambia — eso es lo que una lista no hace.`
+6. `¿Es otra app con mascotas o gamificación infantil?` → `No. FocusTrack es [b]diseño adulto y minimalista[/b] — cero mascotas, cero gemas, cero alarmas que interrumpen. Si buscas algo serio para organizar tu día, es para ti.` (objeción #6 de FICHA-AVATAR.md, agregada tras auditoría — antes faltaba en el código)
 
 ## 9. CTA FINAL
 h2Marked: `Imagina tu día, [acento]ya resuelto[/acento]`
 futurePacingMarked: `Mañana abres los ojos, ves tu día en bloques, y si algo se cae, lo arreglas en 1 toque — sin culpa, sin drama.`
-recap: `Garantía Cero Sorpresas · 7 días de prueba por $0.99`
-psMarked: `PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 7 días de prueba.`
+recap: `Garantía Cero Sorpresas · 5 días de prueba por $0.99`
+psMarked: `PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 5 días de prueba.`
 
 ## 10. FOOTER LEGAL
 appName: `FocusTrack` · soporteEmail: `soporte@focustrack.app` (placeholder — se confirma en Sesión 6)

@@ -39,7 +39,7 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
   const baseId = useId();
 
   return (
-    <SectionShell id={id} elevacion="base" ariaLabel="Preguntas frecuentes">
+    <SectionShell id={id} elevacion="base" ariaLabel="Preguntas frecuentes" className="grid-tecnico">
       <motion.div
         variants={contenedor}
         initial="hidden"
@@ -49,7 +49,7 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
       >
         <motion.div variants={item} className="mb-8">
           <Kicker>{kicker}</Kicker>
-          <h2 className="text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]">
+          <h2 className="text-balance text-[26px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[34px]">
             {titulo}
           </h2>
         </motion.div>

@@ -29,12 +29,12 @@
 - Vía alterna si excluye a la mayoría: N/A hasta tener el dato
 
 ## 4. PRUEBA Y GARANTÍA (plazos que la pasarela permite DE VERDAD)
-- Plazos de prueba que admite la pasarela: NO ENCONTRADO — verificado en: pendiente (se confirma al configurar el producto en Hotmart, Sesión 6) | fecha: —
-- Plazos de garantía/reembolso que admite: NO ENCONTRADO — verificado en: pendiente | fecha: —
-- **Prueba elegida: 7 días · Garantía elegida: 14 días**
-- Comprobación: garantía 14 > prueba 7 → **SÍ** — la garantía cubre el trial completo más 7 días adicionales tras el primer cobro
-- ¿Desde cuándo cuenta el plazo de garantía?: NO CONFIRMADO → el copy de la landing NO fija fecha de inicio ("14 días de garantía", sin decir "desde el cobro" ni "desde la adhesión" — cierto en ambos casos, regla de 18-VENTA-HOTMART.md)
-- ⚠️ **Pendiente crítico (Sesión 6):** al conectar la cuenta real de Hotmart, verificar que el panel permite configurar 14 días de garantía sobre un trial de 7. Si el máximo configurable de Hotmart fuera menor a 14, bajar la prueba o subir la garantía hasta cumplir garantía > prueba antes de abrir tráfico.
+- Plazos de prueba que admite la pasarela: hasta el límite que permita el panel de Hotmart (se termina de confirmar al configurar el producto real, Sesión 6) | fecha: —
+- Plazos de garantía/reembolso que admite: **confirmado por el usuario — máximo 7 días** | fecha: 2026-08-15
+- **Prueba elegida: 5 días · Garantía elegida: 7 días** (corregido 2026-08-15 — antes decía prueba 7/garantía 14, un valor no verificado; el usuario confirmó que el máximo real de Hotmart es 7 días de garantía, así que se bajó la prueba de 7 a 5 para preservar la regla dura)
+- Comprobación: garantía 7 > prueba 5 → **SÍ** — la garantía cubre el trial completo más 2 días adicionales tras el primer cobro real (día 5)
+- ¿Desde cuándo cuenta el plazo de garantía?: NO CONFIRMADO → el copy de la landing NO fija fecha de inicio ("7 días de garantía", sin decir "desde el cobro" ni "desde la adhesión" — cierto en ambos casos, regla de 18-VENTA-HOTMART.md)
+- ⚠️ **Pendiente (Sesión 6):** al conectar la cuenta real de Hotmart, verificar en el panel que 7 días de garantía y 5 de prueba son configurables tal cual. Si algún límite real difiere, ajustar manteniendo garantía > prueba antes de abrir tráfico.
 
 ## 5. CONVERSIÓN ESPERABLE — para saber si un número es malo o normal
 - Conversión típica visita→registro del nicho: NO ENCONTRADO

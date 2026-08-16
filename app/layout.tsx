@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { MotionConfigProvider } from "@/components/MotionConfigProvider";
 
 export const metadata: Metadata = {
   title: "FocusTrack — Tu día, en bloques que sí puedes sostener",
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-dvh flex flex-col">{children}</body>
+      <body className="min-h-dvh flex flex-col">
+        <MotionConfigProvider>{children}</MotionConfigProvider>
+      </body>
     </html>
   );
 }

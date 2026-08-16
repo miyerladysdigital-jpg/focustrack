@@ -8,7 +8,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /* ── <Accent> — la palabra que vende, en el acento del kit ─────────────────── */
@@ -109,11 +109,12 @@ export function SectionShell({
 }) {
   const pt = flush === 'top' ? 'pt-0' : compacta ? 'pt-12 md:pt-16' : 'pt-16 md:pt-24';
   const pb = flush === 'bottom' ? 'pb-8 md:pb-10' : compacta ? 'pb-12 md:pb-16' : 'pb-16 md:pb-24';
+  const separador = flush !== 'top' ? 'border-t border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)]' : '';
   return (
     <section
       id={id}
       aria-label={ariaLabel}
-      className={`${elevacion === 'elevada' ? 'bg-[var(--surface)]' : ''} ${pt} ${pb} ${className}`}
+      className={`${elevacion === 'elevada' ? 'bg-[var(--surface-2)]' : ''} ${separador} ${pt} ${pb} ${className}`}
     >
       <div className="mx-auto w-full max-w-[1140px] px-5">{children}</div>
     </section>
@@ -147,19 +148,25 @@ export function CtaButton({
   children,
   alto = 52,
   fullMobile = true,
+  invertido = false,
 }: {
   href: string;
   children: ReactNode;
   alto?: 52 | 56;
   fullMobile?: boolean;
+  /** Para usar SOBRE un fondo oscuro invertido (ej. CtaFinal) — el acento pierde
+   * contraste contra --text-primary; se invierte a relleno claro + texto de acento. */
+  invertido?: boolean;
 }) {
   return (
     <motion.a
       whileTap={{ scale: 0.97 }}
       href={href}
-      className={`inline-flex items-center justify-center rounded-[var(--radius-button)] bg-[var(--accent)] px-8 text-[17px] font-semibold text-[var(--bg)] shadow-[0_8px_30px_color-mix(in_oklab,var(--accent)_25%,transparent)] transition-colors duration-150 hover:bg-[color-mix(in_oklab,var(--accent)_88%,var(--text-primary))] [touch-action:manipulation] ${
-        alto === 56 ? 'h-14' : 'h-[52px]'
-      } ${fullMobile ? 'w-full sm:w-auto' : ''}`}
+      className={`inline-flex items-center justify-center rounded-[var(--radius-button)] px-8 text-[17px] font-semibold shadow-[0_8px_30px_color-mix(in_oklab,var(--accent)_25%,transparent)] transition-colors duration-150 [touch-action:manipulation] ${
+        invertido
+          ? 'bg-[var(--bg)] text-[var(--accent)] hover:bg-[color-mix(in_oklab,var(--bg)_90%,var(--accent))]'
+          : 'bg-[var(--accent)] text-[var(--bg)] hover:bg-[color-mix(in_oklab,var(--accent)_88%,var(--text-primary))]'
+      } ${alto === 56 ? 'h-14' : 'h-[52px]'} ${fullMobile ? 'w-full sm:w-auto' : ''}`}
     >
       {children}
     </motion.a>
@@ -191,6 +198,13 @@ export function StickyCtaMobile({
   const [ofertaVisible, setOfertaVisible] = useState(false);
   const [ofertaVista, setOfertaVista] = useState(false);
   const [finalVisible, setFinalVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage.getItem('sticky_cta_cerrado') === '1') {
+      setDismissed(true);
+    }
+  }, []);
 
   useEffect(() => {
     const observar = (id: string, onChange: (visible: boolean) => void): IntersectionObserver | null => {
@@ -219,7 +233,12 @@ export function StickyCtaMobile({
     };
   }, [heroId, ofertaId, ctaFinalId]);
 
-  const visible = !heroVisible && !ofertaVisible && !finalVisible;
+  const visible = !heroVisible && !ofertaVisible && !finalVisible && !dismissed;
+
+  const cerrar = () => {
+    setDismissed(true);
+    if (typeof window !== 'undefined') window.sessionStorage.setItem('sticky_cta_cerrado', '1');
+  };
 
   return (
     <AnimatePresence>
@@ -229,15 +248,23 @@ export function StickyCtaMobile({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: reduce ? 0 : 88, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden"
         >
           <motion.a
             whileTap={{ scale: 0.97 }}
             href={ofertaVista ? href : `#${ofertaId}`}
-            className="flex h-12 w-full items-center justify-center rounded-[var(--radius-button)] bg-[var(--accent)] text-[16px] font-semibold text-[var(--bg)] [touch-action:manipulation]"
+            className="flex h-12 flex-1 items-center justify-center rounded-[var(--radius-button)] bg-[var(--accent)] text-[16px] font-semibold text-[var(--bg)] [touch-action:manipulation]"
           >
             {ofertaVista ? labelComercial : labelPre}
           </motion.a>
+          <button
+            type="button"
+            onClick={cerrar}
+            aria-label="Cerrar"
+            className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--text-tertiary)] [touch-action:manipulation]"
+          >
+            <X size={18} />
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

@@ -30,7 +30,7 @@ export function Garantia({ nombre, condicionMarked, pisoLegal, icon: Icono = Shi
   const { contenedor, item } = useReveal();
 
   return (
-    <SectionShell id={id} elevacion="elevada" compacta ariaLabel="Garantía">
+    <SectionShell id={id} elevacion="elevada" compacta ariaLabel="Garantía" className="grid-tecnico">
       <motion.div
         variants={contenedor}
         initial="hidden"

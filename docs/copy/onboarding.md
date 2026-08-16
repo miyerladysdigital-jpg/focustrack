@@ -32,11 +32,13 @@ nombrando **el Botón de Reprogramación Sin Culpa** (mecanismo bautizado, mismo
 
 ## Paywall (C1 + C4 timeline del trial)
 - Headline: `Tu día ya tiene un plan para "[prioridad del usuario]"` (deseo tangible #1 de la ficha)
-- Visual: timeline Hoy / Día 6 (aviso) / Día 7 (cobro) — la verdad del puente (C4bis)
+- Visual: timeline Hoy / Día 4 (aviso) / Día 5 (cobro) — la verdad del puente (C4bis)
 - Planes: Anual $2.08/mes (recomendado) · Mensual $3.99/mes
 - CTA: `Empezar mi prueba de $0.99` — NUNCA "gratis" (el trial es pagado, hallazgo del
   revisor-visual en la landing, aplicado aquí desde el inicio)
-- Trust row: Garantía Cero Sorpresas · 14 días · Hotmart (objeción de precio/estafa de la ficha)
+- Trust row: Garantía Cero Sorpresas · 7 días · Hotmart (objeción de precio/estafa de la ficha) —
+  prueba bajada de 7 a 5 días para que la garantía (máximo real de Hotmart: 7 días) siga cubriendo
+  el primer cobro
 
 ## Login (E — magic link, Hotmart-first)
 - Headline: `Entra a tu plan` + por qué se pide cuenta (guardar, ver en cualquier dispositivo)

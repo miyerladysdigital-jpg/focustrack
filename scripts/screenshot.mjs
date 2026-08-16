@@ -4,8 +4,14 @@ import path from 'node:path';
 const CHROME_PATH = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe';
 
 const targets = [
+  // Screenshots REALES para el hero y el carrusel de la landing (19 §5 / 55 §1.3) —
+  // van PRIMERO: la landing los referencia como <img>, tienen que existir en disco antes.
+  { url: 'http://localhost:3001/app', out: 'public/screenshots/hoy.png', width: 375, height: 812, fullPage: false, waitUntil: 'domcontentloaded' },
+  { url: 'http://localhost:3001/app/buzon', out: 'public/screenshots/buzon.png', width: 375, height: 812, fullPage: false, waitUntil: 'domcontentloaded' },
+  { url: 'http://localhost:3001/app/semana', out: 'public/screenshots/semana.png', width: 375, height: 812, fullPage: false, waitUntil: 'domcontentloaded' },
+  { url: 'http://localhost:3001/app/cuenta', out: 'public/screenshots/cuenta.png', width: 375, height: 812, fullPage: false, waitUntil: 'domcontentloaded' },
   {
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3001',
     out: 'docs/revisiones/landing-375.png',
     width: 375,
     height: 812,
@@ -25,7 +31,7 @@ const targets = [
     waitUntil: 'domcontentloaded',
   },
   {
-    url: 'http://localhost:3000/onboarding',
+    url: 'http://localhost:3001/onboarding',
     out: 'docs/revisiones/onboarding-375.png',
     width: 375,
     height: 812,
@@ -33,7 +39,7 @@ const targets = [
     waitUntil: 'domcontentloaded',
   },
   {
-    url: 'http://localhost:3000/paywall',
+    url: 'http://localhost:3001/paywall',
     out: 'docs/revisiones/paywall-375.png',
     width: 375,
     height: 812,
@@ -53,7 +59,7 @@ const targets = [
     },
   },
   {
-    url: 'http://localhost:3000/app',
+    url: 'http://localhost:3001/app',
     out: 'docs/revisiones/app-principal-375.png',
     width: 375,
     height: 812,
@@ -75,7 +81,7 @@ for (const t of targets) {
   if (t.seedLocalStorage) {
     // localStorage solo se puede setear en el ORIGEN correcto: cargar la página primero,
     // sembrar, y recargar para que el componente la lea al montar.
-    await page.goto(t.url, { waitUntil: t.waitUntil, timeout: 60000 });
+    await page.goto(t.url, { waitUntil: t.waitUntil, timeout: 120000 });
     await page.evaluate((seed) => {
       for (const [k, v] of Object.entries(seed)) window.localStorage.setItem(k, v);
     }, t.seedLocalStorage);

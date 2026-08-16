@@ -4,19 +4,22 @@
 // Mismos tokens que la landing (components/landing/tokens.css). Blueprints:
 // 50-DISENO-ONBOARDING-PAYWALL.md secciones A (pregunta) / A5 (reconocimiento) / A6 (compromiso).
 
-import { ReactNode, useEffect, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
-import { ChevronLeft } from 'lucide-react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion, type Variants } from 'motion/react';
+import { ChevronLeft, X } from 'lucide-react';
 
 /* ── Barra de progreso: línea fina, arranca en 5-8%, nunca dots ── */
 export function ProgressHeader({
   progressPct,
   onBack,
   showBack = true,
+  onClose,
 }: {
   progressPct: number;
   onBack?: () => void;
   showBack?: boolean;
+  /** Salida explícita del onboarding — sin esto el usuario solo puede irse con el back del navegador. */
+  onClose?: () => void;
 }) {
   return (
     <div className="flex items-center gap-3 pt-3">
@@ -36,6 +39,16 @@ export function ProgressHeader({
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         />
       </div>
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Salir"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--text-secondary)]"
+        >
+          <X size={20} />
+        </button>
+      )}
     </div>
   );
 }
@@ -56,10 +69,31 @@ export function QuestionShell({
         {titulo}
       </h1>
       {subtitulo && <p className="mt-2 text-[14px] leading-snug text-[var(--text-secondary)]">{subtitulo}</p>}
-      <div className="mt-8 flex flex-col gap-3">{children}</div>
+      <motion.div
+        variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+        initial="hidden"
+        animate="visible"
+        className="mt-8 flex flex-col gap-3"
+        onKeyDown={(e) => {
+          if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+          const botones = Array.from(e.currentTarget.querySelectorAll('button'));
+          const actual = botones.indexOf(document.activeElement as HTMLButtonElement);
+          if (actual === -1) return;
+          e.preventDefault();
+          const siguiente = e.key === 'ArrowDown' ? Math.min(actual + 1, botones.length - 1) : Math.max(actual - 1, 0);
+          botones[siguiente]?.focus();
+        }}
+      >
+        {children}
+      </motion.div>
     </div>
   );
 }
+
+const chipEntrance: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } },
+};
 
 /* ── Chip de opción (selección única, auto-avanza tras confirmar visualmente) ── */
 export function OptionChip({
@@ -74,9 +108,10 @@ export function OptionChip({
   return (
     <motion.button
       type="button"
+      variants={chipEntrance}
       whileTap={{ scale: 0.97 }}
       onClick={onSelect}
-      className={`flex h-14 w-full items-center justify-between rounded-[var(--radius-button)] border px-4 text-left text-[16px] font-medium transition-colors duration-150 [touch-action:manipulation] ${
+      className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-[var(--radius-button)] border px-4 py-3 text-left text-[16px] font-medium shadow-[var(--shadow-1)] transition-colors duration-150 [touch-action:manipulation] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
         selected
           ? 'border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--text-primary)]'
           : 'border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] text-[var(--text-primary)]'
@@ -99,18 +134,34 @@ export function OptionChip({
   );
 }
 
-/** Hook: selección única con pausa visible antes de avanzar (300ms, bloquea doble-tap). */
-export function useAutoAdvance(onAdvance: () => void) {
-  const [picked, setPicked] = useState<string | null>(null);
+/** Hook: selección única con pausa visible antes de avanzar (300ms, bloquea doble-tap
+ * SOLO durante esa ventana — no bloquea permanentemente si el usuario vuelve atrás.
+ * `current` es la respuesta YA GUARDADA (answers.x) — la fuente de verdad para el
+ * checkmark, así "Atrás" siempre puede reelegir. */
+export function useAutoAdvance(current: string | undefined, onAdvance: () => void) {
+  const lockRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduce = useReducedMotion();
 
   const select = (value: string) => {
-    if (picked) return;
-    setPicked(value);
-    setTimeout(onAdvance, reduce ? 100 : 300);
+    if (lockRef.current) return;
+    lockRef.current = true;
+    timeoutRef.current = setTimeout(() => {
+      onAdvance();
+      lockRef.current = false;
+      timeoutRef.current = null;
+    }, reduce ? 100 : 300);
   };
 
-  return { picked, select };
+  // Cancela el avance pendiente — se llama al tocar "‹ Atrás" para que un tap seguido de un
+  // back inmediato no dispare goNext() 300ms después sobre el paso equivocado.
+  const cancelPending = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    lockRef.current = false;
+    timeoutRef.current = null;
+  };
+
+  return { picked: current ?? null, select, cancelPending };
 }
 
 /* ── CTA fijo abajo (para pasos de input libre / slider que sí requieren confirmar) ── */
@@ -135,6 +186,8 @@ export function StepTransition({ stepKey, children }: { stepKey: string | number
   return (
     <motion.div
       key={stepKey}
+      className="flex flex-1 flex-col"
+      suppressHydrationWarning
       initial={reduce ? { opacity: 0 } : { opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       exit={reduce ? { opacity: 0 } : { opacity: 0, x: -24 }}
@@ -148,7 +201,7 @@ export function StepTransition({ stepKey, children }: { stepKey: string | number
 /* ── Shell común de pantalla del funnel: fondo, padding, safe-area ── */
 export function FunnelScreen({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-[var(--bg)] px-5 pb-[max(20px,env(safe-area-inset-bottom))] [font-family:var(--font-body)] text-[var(--text-primary)]">
+    <div className="grid-tecnico mx-auto flex min-h-dvh max-w-[430px] flex-col bg-[var(--bg)] px-5 pb-[max(20px,env(safe-area-inset-bottom))] [font-family:var(--font-body)] text-[var(--text-primary)]">
       {children}
     </div>
   );
@@ -168,7 +221,11 @@ const KEY = 'focustrack_onboarding';
 
 export function saveAnswers(a: OnboardingAnswers) {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(KEY, JSON.stringify(a));
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(a));
+  } catch {
+    // modo privado / cuota llena: la sesión sigue en memoria (useState), solo no persiste al recargar.
+  }
 }
 
 export function loadAnswers(): OnboardingAnswers {

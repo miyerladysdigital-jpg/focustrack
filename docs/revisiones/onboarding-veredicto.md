@@ -1,0 +1,14 @@
+# VEREDICTO revisor-visual — onboarding
+Fecha: 2026-08-14 00:00
+Screenshot: docs/revisiones/onboarding-375.png
+Usabilidad: 33/40
+Craft: 15/20
+Copy (si vende): N-A
+Fidelidad (si hubo referencia): N-A
+Veredicto: NO LISTA
+Top defectos:
+1. [Cobertura de evidencia — persiste de la ronda anterior] Se entregó otra vez solo el screenshot del paso 1 ("dolor") de los 6 del flujo. El fix reportado de esta ronda para "compromiso" (superficie hundida `--surface-2`, components/onboarding/ui.tsx / app/onboarding/page.tsx L204-227) existe en el código pero NO tiene captura que lo confirme — sigue siendo "profundidad de 2 planos" lo único verificable visualmente. → Fix: adjuntar captura a 375px del paso "compromiso" (y de "reconocimiento"/"loading") en el próximo cierre; sin eso, el fix de profundidad no cuenta como verificado.
+2. [Paso "dolor" — bloque título+opciones] Vacío muerto de ~180px entre la barra de progreso y el titular (el bloque se centra verticalmente vía `justify-center` en `flex-1` dentro de `page.tsx` L76, y el contenido es corto) — la pregunta no aparece hasta bien entrado el primer tercio de la pantalla. → Fix: anclar el bloque más arriba (reemplazar `justify-center` por un padding-top fijo, p.ej. `mt-10`/`mt-12` sin centrado) para que el titular quede visible de inmediato.
+3. [Paso "prioridad" — pills de sugerencia vs `OptionChip`] Los botones de sugerencia (page.tsx L149-161: texto 13px, `py-2`, ancho auto) y los `OptionChip` de los demás pasos (ui.tsx L90-126: texto 16px, `min-h-14`, ancho completo) resuelven el mismo concepto — "elegir una opción" — con dos lenguajes visuales distintos dentro del mismo flujo de 6 pasos. → Fix: unificar el tratamiento (misma altura mínima/radius/tipografía) o, si deben ser más chicos por ser atajos de autocompletar, dar una señal explícita (p.ej. ícono o label "sugerencias") de que no son la respuesta final.
+4. [Todo el flujo — chips de opción] El fix de esta ronda agregó `focus-visible:outline` (ui.tsx L105) pero el defecto original también pedía navegación por flechas ↑↓ entre chips — eso sigue sin implementarse; el foco solo se mueve con Tab. → Fix: agregar manejo de `ArrowUp`/`ArrowDown` (o roving tabindex) dentro de `QuestionShell`/`OptionChip` para completar la flexibilidad de teclado.
+5. [Identidad — paleta general "papel cálido + tinta verde"] `--bg:#EFF2ED` + `--accent:#3D6B4F` (tokens.css) reproduce el concepto de la combinación vetada por el test anti-clon ("papel cálido + tinta verde + Petrona/Karla"); la tipografía (Chivo/Hanken Grotesk) sí diverge y evita el clon literal, pero en esta pantalla (sin el hero de racha/anillo ni sombra tintada del resto del sistema) la identidad depende casi solo de ese par color+concepto. → Fix: traer al menos un rasgo del dispositivo ownable (grid técnico ya está, sumar la sombra tintada en el chip seleccionado o un detalle de firma) también a las pantallas de pregunta, no solo a loading/compromiso.

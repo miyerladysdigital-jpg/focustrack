@@ -32,7 +32,7 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
   const { contenedor, item } = useReveal();
 
   return (
-    <SectionShell id={id} elevacion="elevada" flush="bottom" ariaLabel="El problema">
+    <SectionShell id={id} elevacion="elevada" flush="bottom" ariaLabel="El problema" className="grid-tecnico">
       <motion.div
         variants={contenedor}
         initial="hidden"

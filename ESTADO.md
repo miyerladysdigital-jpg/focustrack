@@ -5,103 +5,76 @@
 Planificador diario visual para adultos con TDAH/disfunción ejecutiva. Organiza el día en bloques
 de tiempo y permite reprogramar imprevistos en un solo toque, sin culpa ni trampas de suscripción.
 
-Alternativas de nombre: NeuroPlan, FlowDay (decisión final pendiente — Sesión 2, junto con identidad visual).
-
 ## Fase actual
 
 Sesión 1 — Validación/Avatar/Monetización/Arquitectura: COMPLETA (FICHA-AVATAR.md aprobada).
 Sesión 2 — Identidad visual: COMPLETA (FICHA-ARTE.md aprobada, dirección "Bloques de Campo" +
 hero de racha, ver direcciones-abc-focustrack.html).
-Sesión 3 — Página de ventas: CONSTRUIDA, no cerrada del todo (ver pendientes abajo).
-Sesión 4 — Onboarding/paywall/login: recorrido funcional armado y probado a mano en el navegador
-de punta a punta (`/onboarding` → `/paywall` → `/login` → confirmación de correo); NO iniciado el
-pase del revisor-visual todavía (ver Problemas conocidos).
-Sesión 5 — App interna: CONSTRUIDA y probada a mano en el navegador (4 secciones: Hoy/Buzón/
-Semana/Cuenta, con datos semilla de "Andrea" — nunca vacía). NO iniciado el pase del
-revisor-visual sobre la "pantalla principal" (Hoy) todavía. Siguiente: Sesión 6 (conectar
-Supabase/Hotmart/Vercel/Resend/dominio — aquí el usuario crea cuentas) — o antes, cerrar los
-veredictos formales pendientes de landing/onboarding/paywall/Hoy.
+Sesión 3 — Página de ventas: CONSTRUIDA.
+Sesión 4 — Onboarding/paywall/login: CONSTRUIDO y probado de punta a punta.
+Sesión 5 — App interna: CONSTRUIDA (4 secciones: Hoy/Buzón/Semana/Cuenta, datos semilla de
+"Andrea" — nunca vacía).
+Sesión 5.5 (2026-08-14) — Ronda de revisión de calidad + pasada de pulido (revisor-visual) sobre
+las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
+**Siguiente: Sesión 6** — conectar Supabase/Hotmart/Vercel/Resend/dominio (aquí el usuario crea cuentas).
 
-### Sesión 5 — Detalle de lo construido
-- `lib/app-data.ts`: capa de datos en localStorage (sin backend hasta Sesión 6). Seed de datos
-  demo realista: "Andrea", 3 bloques de hoy (1 hecho/2 pendientes), 5 pensamientos en el buzón con
-  fechas relativas reales, racha de 5 días, semana con 5/7 días activos — nunca la app vacía
-  (32-DEL-MVP-AL-PRODUCTO).
-- `app/app/layout.tsx` + `components/app/BottomNav.tsx`: shell `min-h-dvh` con nav inferior de
-  4 pestañas (Hoy/Buzón/Semana/Cuenta) — sin vacío muerto, nav siempre al fondo.
-- `app/app/page.tsx` (Hoy, M0 ritual diario): las 4 piezas del blueprint 56→M0.1 — dato de hoy
-  (X/Y bloques), racha visible (no protagonista), insight en la voz del mecanismo, y EL BOTÓN DE
-  REPROGRAMACIÓN SIN CULPA (contextual: solo aparece si hay bloques pendientes).
-- `app/app/buzon/page.tsx`: captura rápida + lista con resumen agregado + convertir a bloque o
-  eliminar. Acción de creación en el contexto visual de la lista (proximidad).
-- `app/app/semana/page.tsx`: protagonista distinto a Hoy (el patrón semanal, no repite el plan del
-  día) — 2 tarjetas de resumen + gráfico de barras por día + insight semanal.
-- `app/app/cuenta/page.tsx`: estado del trial/plan con CTA a `/paywall`, ajustes, enlaces legales,
-  cerrar sesión — toda capacidad soportada es alcanzable desde la UI (enriquecimiento #4).
-- **Bug real encontrado y corregido en vivo**: las barras del gráfico de "Semana" no se veían
-  (alturas en % dentro de un flex-item sin alto propio se resuelven a 0 — bug de CSS clásico).
-  Se corrigió dándole alto explícito al contenedor de cada barra. Verificado visualmente antes/después.
-- **Bug de codegen de Next.js 16.3.1 encontrado y corregido**: al usar `LayoutProps<'/app'>` en un
-  layout no-raíz, tsc fallaba con "Type 'Route' does not satisfy the constraint '\"/\"'" — la causa
-  real era `.next/types/routes.d.ts` desactualizado (el que lee `next-env.d.ts`, distinto de
-  `.next/dev/types/routes.d.ts` que sí se actualiza con el dev server). Se resolvió corriendo
-  `npx next typegen`. Anotado por si reaparece al agregar nuevas rutas.
-- Verificado: `npm run build` ✓ (12 rutas estáticas) · `npm run typecheck` ✓ · las 4 pantallas
-  probadas a mano en el navegador con los datos semilla, incluyendo el fix del gráfico.
+### Pasada de pulido (2026-08-14, tras cerrar la revisión de calidad — 7ª ronda de revisor-visual)
+El usuario pidió una pasada de pulido antes de pasar a Sesión 6. Se corrigieron los defectos
+documentados en "Problemas conocidos" (abajo) y se relanzó el revisor-visual una vez más:
+- **Landing 33/40·15/20·19/20** (antes 32/15/19): se agregó botón de cierre al sticky CTA mobile
+  (sessionStorage) y conteo animado a los precios de Oferta al entrar en viewport — ambos mejoraron
+  control/movimiento. Un intento de diferenciar el h2 de Oferta (30→34px) creó una 5ª variante de
+  tamaño en vez de resolver la repetición → revertido a 30/40px (igual que Problema/AppPorDentro/
+  FAQ; Solución queda como la única variante deliberada en 32/44px). También se revirtió
+  `--text-secondary` a `#667066` (el valor exacto de FICHA-ARTE.md) tras un ajuste de contraste que
+  se apartó de la ficha aprobada sin autorización — la paleta es cosa juzgada, no se retoca sola.
+- **Onboarding 33/40·15/20** (antes 32/15): el fix de la condición de carrera en "‹ Atrás"
+  (`cancelPending()`) se confirmó real y correcto; el contraste de `--text-secondary` mejoró pero
+  luego se revirtió (ver nota de landing). Falta aún: navegación por teclado con flechas entre
+  chips (el `focus-visible` que se agregó solo resuelve la mitad del defecto), y verificar con
+  captura real el paso "compromiso" (el fix de superficie hundida no se pudo confirmar visualmente
+  en esta ronda — solo se evaluó el paso "dolor").
+- **Paywall 35/40·15/20·19/20** (antes 34/16/19 — usabilidad subió, craft bajó 1pt): el estado de
+  error del CTA, la garantía junto al botón y el precio con menos peso visual SÍ se verificaron
+  resueltos. Se agregó `focus-visible` al CTA y a `PlanCard` tras esta pasada (tapaba el defecto
+  #1 de esta ronda) — sin verificar aún con un revisor nuevo.
+- **App-principal 29/40·14/20** (antes 30/16 — bajó porque `reprogramarUno`, nueva esta ronda,
+  introdujo 2 defectos frescos): el toast de "Deshacer" decía "Reprogramaste tu día" incluso al
+  reprogramar un solo bloque (mensaje falso) → corregido con un mensaje distinto por acción
+  (`undoMensaje`); el ícono de reprogramar-uno medía 36px, bajo el mínimo de 44px de la propia
+  app → corregido a 44px con fondo `--surface-2`. Sin verificar aún con un revisor nuevo.
+- **Decisión de cierre**: tras 7 rondas totales (28 invocaciones del revisor-visual) con puntajes
+  oscilando en un rango similar — algunas correcciones generan defectos nuevos del mismo tamaño
+  que los que resuelven — se cierra la pasada de pulido aquí. Los últimos 4 fixes (toast, touch
+  target, focus-visible del paywall) quedaron aplicados y con `tsc`/`build` verificados, pero SIN
+  una 8ª ronda de revisor-visual que los confirme — se documentan como pendientes de verificación
+  visual, no como declarados LISTA.
 
-### Sesión 4 — Detalle de lo construido
-- `app/onboarding/page.tsx` + `components/onboarding/ui.tsx`: quiz de 5 preguntas + pantalla de
-  reconocimiento (A5, una por cada dolor de FICHA-AVATAR.md) + loading "Construyendo tu día…" (B).
-  Respuestas en localStorage (Modelo 2 anónimo — sin cuenta todavía).
-- `app/paywall/page.tsx`: blueprint C1+C4 (timeline del trial Hoy/Día 6/Día 7), planes Anual
-  (recomendado, $2.08/mes) y Mensual ($3.99/mes), CTA "Empezar mi prueba de $0.99" (nunca "gratis"
-  — la lección de la landing se aplicó desde el diseño).
-- `app/login/page.tsx`: magic link con los 3 estados (idle/enviando/enviado + cooldown 60s),
-  mock local — Supabase Auth real se conecta en Sesión 6 (C3ter: nunca simular un cobro real, sí
-  se puede simular el flujo de login).
-- Se agregaron tokens semánticos `--success/--error/--warning` a `components/landing/tokens.css`
-  (faltaban, se usó un hex directo por error y el linter de diseño lo marcó — corregido).
-- `docs/copy/onboarding.md`: copy completo trazado a FICHA-AVATAR.md.
-- Verificado: `npm run build` ✓ (8 rutas estáticas) · `npm run typecheck` ✓ · flujo completo
-  probado a mano en el navegador (clic por clic, incluyendo el estado "revisa tu correo" del login).
-
-### Sesión 3 — Detalle de lo construido
-- Scaffold Next.js 16 (App Router, Turbopack, TS, Tailwind v4) instalado en la raíz del proyecto.
-- Kit canónico de landing copiado a `components/landing/` y tematizado en
-  `components/landing/tokens.css` con los valores de FICHA-ARTE.md.
-- Copy completo y marcado en `docs/copy/landing.md`, trazado a FICHA-AVATAR.md. Mecanismo
-  bautizado: "el Botón de Reprogramación Sin Culpa". Modelo 2 (onboarding-first, variante
-  anónima) — todos los CTA apuntan a `/onboarding` (aún no existe, se construye en Sesión 4).
-- `app/page.tsx` compone las 10 secciones canónicas con ese copy. `app/layout.tsx` carga Chivo +
-  Hanken Grotesk vía `<link>` de Google Fonts (NO next/font/google — esa vía falló por 404s
-  intermitentes de fonts.gstatic.com en la red de esta máquina; el link CSS es más tolerante).
-- Verificado: `npm run build` ✓ · `npm run typecheck` ✓ · `npm run dev` levanta sin errores de
-  consola bloqueantes · revisado visualmente a 375px y desktop, las 10 secciones renderizan bien
-  (colores salvia, tipografías cargando, carrusel, acordeón FAQ, sticky CTA, CTA final invertido).
-- `.claude/launch.json` creado para poder previsualizar con el navegador (`npm run dev`, puerto 3000).
-- Protección aplicada: se le agregó al final de CLAUDE.md y AGENTS.md el bloque
-  `<!-- BEGIN:nextjs-agent-rules -->...END` que Next.js 16 auto-genera, para que `next dev`/`build`
-  NUNCA vuelva a tocar esos archivos (son las reglas del SO, no se pueden perder).
-
-### Pendientes de Sesión 3 (NO declarar la landing "lista para vender" hasta resolver esto)
-1. Warning de hidratación de `framer-motion` (whileInView) en consola — no bloquea, pero hay que
-   revisarlo en la Sesión 7 (pulido/testing). No es un bug introducido por el copy/tokens, es del
-   kit del SO tal cual viene.
-2. Falta el pase formal del subagente `revisor-visual` (rúbricas /40 y /20) — la landing es una de
-   las 4 pantallas "del dinero" que lo requieren obligatoriamente antes de declararla cerrada.
-3. Faltan capturas reales guardadas en `docs/revisiones/` (se verificó visualmente en el navegador
-   de la sesión, pero no se archivó el PNG ni el veredicto — pendiente).
-4. El placeholder del hero y los 4 frames del carrusel "La app por dentro" siguen siendo
-   placeholders honestos (correcto por doctrina: la app aún no existe — se reemplazan con
-   screenshots reales en la Sesión 5, cuando exista el seed de datos).
-5. `soporte@focustrack.app` en el footer es un email placeholder — se confirma el dominio real en
-   Sesión 6.
+### Resultado final de la revisión de calidad (2026-08-14, 6 rondas de revisor-visual)
+Se corrió el subagente `revisor-visual` en 6 rondas iterativas (24 invocaciones) sobre landing,
+onboarding, paywall y app-principal (Hoy), corrigiendo cada tanda de defectos y regenerando
+capturas contra un build de producción limpio (sin el badge de errores de dev). Progreso de
+usabilidad/craft/copy, primera pasada de esta ronda → última:
+- **Landing**: 19/40·9/20·12/20 → **32/40·15/20·19/20**. NO LISTA (craft 1pt bajo el umbral).
+- **Onboarding**: 28/40·13/20 → **32/40·15/20**. NO LISTA (usabilidad 4pt, craft 1pt bajo el umbral).
+- **Paywall**: 29/40·14/20·15/20 → **34/40·16/20·19/20**. NO LISTA (solo 2pt de usabilidad — craft
+  y copy YA PASAN el umbral).
+- **App-principal (Hoy)**: 30/40·12/20 → **30/40·16/20**. NO LISTA (usabilidad 6pt bajo el umbral —
+  craft YA PASA).
+Ninguna alcanzó el gate doble (≥36/40 usabilidad y ≥16/20 craft/copy), pero las 4 mejoraron
+sustancialmente y 2 bugs REALES (no solo visuales) se encontraron y corrigieron: onboarding
+bloqueaba permanentemente la reselección de un chip al volver atrás, y la landing tenía un botón
+con contraste de accesibilidad bajo el mínimo WCAG (2.36:1 en el CTA de la sección invertida).
+**Decisión de cierre**: tras 6 rondas con retornos decrecientes (el revisor-visual es la operación
+más cara del SO), se cierra esta ronda de revisión. Los defectos restantes de cada pantalla piden
+en su mayoría FEATURES de mayor alcance (gestos táctiles, edición granular de bloques individuales,
+prueba social de terceros que aún no existe, navegación por teclado) más que bugs — quedan
+documentados en "Problemas conocidos" con la palabra clave `veredicto-<pantalla>` para retomarlos
+en una futura sesión de pulido (07-PULIDO.md), sin bloquear el avance a Sesión 6.
 
 ## Fuente de validación (idea ya investigada — NO re-validar)
 
-El usuario pegó el bloque "RESUMEN FINAL — IDEA VALIDADA PARA CONSTRUIR" proveniente de una
-investigación previa (3 documentos: Investigación de Apps Rentables, Recomendación Final y
-Protocolo de Validación, y Propuesta de Valor/Copywriting). Puntaje de oportunidad: 88/100.
+Puntaje de oportunidad: 88/100. Detalle completo en FICHA-AVATAR.md.
 
 ### Problema urgente
 Parálisis por análisis y ceguera temporal al iniciar tareas diarias — afecta a profesionales y
@@ -112,20 +85,6 @@ interrupción del día.
 Profesional o estudiante neurodivergente, 22–40 años, LATAM/hispanohablante (o global), remoto o
 híbrido, ingresos medios, dispuesto a pagar $3–5 USD/mes por reducir su estrés cognitivo.
 
-### Los 5 dolores (citas literales — ver FICHA-AVATAR.md)
-1. Cobros ocultos y sorpresas (cargo no autorizado de $16.41 en PayPal).
-2. Trampas de cancelación (proceso de cancelar oculto, bloqueado por IA que no funciona).
-3. Rendimiento deficiente (apps lentas, consumen batería, sin salida de pantallas).
-4. Infantilización y alertas molestas (alarmas nocturnas, trato como niño de 5 años).
-5. Monetización invasiva (funciones básicas movidas detrás de un paywall).
-
-### Los 5 deseos
-1. Cronograma visual interactivo de un vistazo (elimina ceguera temporal).
-2. Buzón inmediato (inbox) para vaciar pensamientos fugitivos.
-3. Reprogramar todo el día con un botón, sin culpa.
-4. Cobros 100% transparentes, sin sorpresas.
-5. Dopamina de completar tareas en entorno adulto, sin sobre-estímulo visual.
-
 ### Diferenciador (una frase)
 "Somos la única app de planificación visual que combina reprogramación instantánea sin culpa con
 cobros 100% transparentes para adultos con disfunción ejecutiva que odian la sobreestimulación y
@@ -135,40 +94,20 @@ las trampas de suscripción."
 1. Timeline visual interactivo por bloques de tiempo.
 2. Buzón de pensamientos fugitivos (Inbox).
 3. Botón de "Reprogramación Sin Culpa" en 1 clic.
-4. Integración básica con Apple Calendar / Google Calendar (puede diferirse a fase de servicios externos).
+4. Integración con calendario (diferida a fase de servicios externos).
 5. Paywall transparente con opción de prueba pagada.
 
 ### Qué NO construir todavía
-- Mascotas virtuales, avatares o tiendas de gemas.
-- Analíticas complejas de gráficos semanales.
-- Funciones sociales o foros comunitarios.
+Mascotas/avatares/tiendas de gemas · analíticas complejas · funciones sociales/foros.
 
-### Primera victoria (<5 min)
-Onboarding de 3 preguntas (inicio de jornada, compromiso prioritario del día, nivel de energía) →
-la app genera el timeline del día con 3 bloques y activa el temporizador de la primera tarea, en
-menos de 120 segundos.
-
-### Competidores de referencia (para dirección de arte y posicionamiento)
+### Competidores de referencia (dirección de arte y posicionamiento)
 - **Structured**: queja #1 = rigidez al reprogramar → nosotros: reprogramación en 1 toque.
-- **Fabulous/Clarify**: queja #1 = cobros engañosos, cancelación bloqueada → nosotros: transparencia radical, cancelación en 1 clic.
+- **Fabulous/Clarify**: queja #1 = cobros engañosos, cancelación bloqueada → nosotros: transparencia radical.
 - **Finch**: queja #1 = sobrecarga de animaciones, infantilización → nosotros: diseño minimalista adulto.
 
-### Monetización (benchmark de mercado, precio inicial PROPUESTO por el sistema)
-- Modelo: Suscripción freemium con prueba pagada de 7 días ($0.99 USD).
-- Precio: $3.99 USD/mes o $24.99 USD/año (adaptar a monedas locales LATAM más adelante).
-- Opción lifetime $49.99 USD (alta demanda en usuarios anti-suscripción — evaluar en 02C).
-- Free tier: 3 bloques diarios, 10 notas en buzón, 1 rutina. Pago: bloques ilimitados,
-  reprogramación 1-toque, sync calendario, buzón ilimitado.
-- Benchmark: Structured $2.99/mes ($200k/mes rev); Routinery $3.99/mes; ARPPU sector $8.00 USD.
-- Decisión de modelo (matriz A-F de 02C) y trial definitivos: pendiente de correr 02C-PRICING-Y-MODELO-DE-NEGOCIO.md formalmente en esta sesión.
-
 ### Canal de adquisición #1
-Orgánico en TikTok y Threads — contenido "build in public" + demostraciones del botón de
-reprogramación sin culpa. 5 hooks ya redactados (ver documento fuente / FICHA-AVATAR.md).
-
-### Keywords ganadoras
-"ADHD daily planner" (alto volumen, alta intención) · "planificador TDAH" (medio-alto ES, baja
-competencia) · "visual routine tracker" (medio, alta conversión).
+Orgánico en TikTok y Threads — "build in public" + demostraciones del botón de reprogramación sin
+culpa. 5 hooks ya redactados (ver FICHA-AVATAR.md).
 
 ### Riesgos y mitigación
 1. Abandono por frustración cognitiva → botón "Reinicio Sin Culpa" limpia alertas rojas acumuladas.
@@ -178,100 +117,127 @@ competencia) · "visual routine tracker" (medio, alta conversión).
 ## Decisiones técnicas (cocina del agente — no se le presenta al usuario como elección a aprobar)
 
 ### Stack
-- Next.js (App Router) + Supabase (DB/Auth/Storage) + Vercel + Hotmart + Resend. Estándar del SO.
+Next.js (App Router) + Supabase (DB/Auth/Storage) + Vercel + Hotmart + Resend. Estándar del SO.
 
 ### Modelo de monetización (matriz A-F de 02C — DECIDIDO)
 - Nicho: Productividad/Organización con componente de Bienestar cognitivo (híbrido E+B).
-- **Modelo 2 — Onboarding + Paywall de prueba**, variante **Preview anónimo → paywall → login/auth**
-  (el timeline se genera con datos locales/anónimos en el onboarding; se pide cuenta recién para
-  guardar/desbloquear — coincide con la "primera victoria <5min" ya definida en la Constitución).
-- Trial: pagado, $0.99 USD por 7 días (tiempo-a-valor inmediato → trial corto, según regla de 02C).
-  Luego $3.99 USD/mes o $24.99 USD/año (mostrado como $2.08/mes, "2 MESES GRATIS", anual preseleccionado).
-  Evaluar lifetime $49.99 como señuelo en el paywall (no como plan principal).
-- Mapa D1-D7 del trial (a diseñar en Sesión 4): D1 = timeline usable el mismo día · D2-D3 = primer
-  insight real ("tu bloque más productivo fue...") · D4-D5 = inversión acumulada visible (tareas
-  organizadas) · D6 = aviso pre-cobro honesto · D7 = "ya eres Pro" con desbloqueo visible.
+- **Modelo 2 — Onboarding + Paywall de prueba**, variante **Preview anónimo → paywall → login/auth**.
+- Trial: pagado, $0.99 USD por **5 días** (corregido 2026-08-15 — antes 7). Luego $3.99/mes o
+  $24.99/año (~$2.08/mes, anual preseleccionado). **Garantía: 7 días** (era 14, un valor no
+  verificado — el usuario confirmó que el máximo real de Hotmart es 7; se bajó la prueba de 7 a 5
+  para que la garantía siga cubriendo el primer cobro real, ver FICHA-MERCADO.md §4).
+- Mapa D1-D5 del trial: D1 = timeline usable el mismo día · D2-D3 = primer insight real · D4 =
+  aviso pre-cobro honesto · D5 = 1er cobro / "ya eres Pro".
 
 ### Modelo de datos (esquema inicial — se ajusta en Sesión 6 al conectar Supabase real)
 - `profiles` (espejo de auth.users: plan, trial_ends_at, energy_default)
 - `blocks` (timeline: id, user_id, date, start_time, end_time, title, status [pending/done/rescheduled], energy_tag)
-- `inbox_items` (buzón de pensamientos: id, user_id, text, created_at, converted_to_block_id nullable)
-- `user_progress` (racha, D1-D7 trial tracking, hitos)
+- `inbox_items` (buzón: id, user_id, text, created_at, converted_to_block_id nullable)
+- `user_progress` (racha, D1-D5 trial tracking, hitos)
 - `subscriptions` (espejo del estado de Hotmart: plan, status, current_period_end)
 - RLS en todas: `user_id = auth.uid()` con `using` + `with check`. Índices en cada `user_id` FK.
 
 ### Auth (jerarquía de 26-AUTH-MODERNO.md)
-- Modelo Hotmart-first: el webhook crea usuarios passwordless; login primario = magic link/OTP
-  por email (combo enlace+código). Passkey se ofrece DESPUÉS de la primera victoria (D1-D3), nunca
-  en el primer login. OAuth Google como mejora posterior. Sin contraseñas.
-- Dado que el modelo es onboarding-first con preview anónimo, el registro real ocurre en el
-  paywall/login (no antes) — el progreso del onboarding se guarda localmente hasta ese punto.
+Modelo Hotmart-first: webhook crea usuarios passwordless; login primario = magic link/OTP por
+email. Passkey se ofrece DESPUÉS de la primera victoria (D1-D3), nunca en el primer login. Sin
+contraseñas. El registro real ocurre en el paywall/login (onboarding es anónimo, guarda local).
 
-### Retención (pendiente de detallar en Sesión 5, con 24 y 56)
-- Loop: gatillo (recordatorio contextual por energía) → acción (organizar/reprogramar bloques) →
-  recompensa (dopamina visual + insight) → inversión (historial de bloques organizados que no
-  quiere perder). Ritual diario M0: apertura matutina → ver timeline del día ya armado.
+### Retención
+Loop: gatillo (recordatorio contextual por energía) → acción (organizar/reprogramar bloques) →
+recompensa (dopamina visual + insight) → inversión (historial que no quiere perder). Ritual diario
+M0: apertura matutina → ver timeline del día ya armado.
 
-- No usa IA generativa en el MVP (integración con calendario es API, no LLM) — revisar si se agrega IA en fases posteriores.
+No usa IA generativa en el MVP.
 
 ## Qué falta (próximos pasos)
-1. Sesión 2 — Identidad visual: 3 direcciones A/B/C basadas en Structured (elegida por el usuario), FICHA-ARTE.md.
-2. Sesión 3 — Página de ventas (10 secciones canónicas, copy derivado de FICHA-AVATAR.md).
-3. Sesión 4 — Onboarding, paywall y login (con el mapa D1-D7 ya definido arriba).
-4. Sesión 5 — App interna (Timeline, Inbox, Reprogramar, Cuenta/Plan).
-5. Sesión 6 — Conexión de servicios reales (Supabase, Hotmart, Vercel, Resend, dominio) — aquí el usuario crea cuentas.
-6. Sesión 7 — Testing, pulido, gates de seguridad e integridad.
-7. Sesión 8 — Adquisición y lanzamiento.
+1. **Sesión 6** — Conexión de servicios reales (Supabase, Hotmart, Vercel, Resend, dominio) — aquí el usuario crea cuentas.
+2. Sesión 7 — Testing, pulido (incluye retomar los pendientes de "Problemas conocidos" abajo), gates de seguridad e integridad.
+3. Sesión 8 — Adquisición y lanzamiento.
+4. **Logo real — RESUELTO (2026-08-15)**: el usuario reexportó el logo como PNG con transparencia
+   real (`public/logo.PNG.png`, confirmado `hasAlpha:true` con sharp — el primer intento,
+   `logo-png.jfif`, era un JPEG sin canal alfa, con el fondo de cuadros del chat "quemado" en la
+   imagen). Se recortó el anillo verde (sin el wordmark) a `public/logo-icon.png` (cuadrado,
+   transparente) y se conectó en 3 lugares: header de la landing (`app/page.tsx` vía prop `logo`
+   de `Hero`), header del paywall (`app/paywall/page.tsx`) y header del login (`app/login/page.tsx`)
+   — los 3 reemplazan el cuadrado verde de relleno que había antes. También se generó
+   `app/icon.png` (favicon de la pestaña del navegador, convención de Next.js) y se borró el
+   `app/favicon.ico` por defecto de Next para que no compita. Verificado visualmente en las 3
+   pantallas con el dev server — se ve limpio, combina con la paleta ya aprobada.
+
+### Auditoría senior (2026-08-15) — hallazgos corregidos tras aprobación del usuario
+Se corrió una auditoría `--rapido` de las 6 dimensiones (producto, diseño, UX, backend, seguridad,
+IA) explorando la app renderizada a 375px con el dev server real. El usuario aprobó todas las
+mejoras del reporte. Capas ejecutadas y verificadas (`tsc --noEmit` ✓ · `npm run build` ✓):
+- **Prueba/garantía corregidas** (dato del usuario, no hallazgo de la auditoría): Hotmart solo
+  permite 7 días de garantía real, no 14 — se bajó la prueba de 7 a 5 días para que la garantía
+  siga cubriendo el primer cobro (7>5, regla dura cumplida). Corregido en todo el código y
+  documentación (12 archivos), ver detalle abajo en Decisiones técnicas.
+- **Semana** (`app/app/semana/page.tsx`): no tenía fechas reales ni navegación entre periodos
+  (violaba la regla UX 13 del propio CLAUDE.md) → se agregó navegación con flechas ← → y el rango
+  de fechas real de cada semana (ej. "11-17 ago"); las semanas anteriores muestran honestamente
+  "Todavía no hay datos" en vez de inventar un historial que no existe (no hay backend aún).
+- **Bug de hidratación** en el precio animado de la landing y en la transición de pasos del
+  onboarding → se agregó `suppressHydrationWarning` en los 2 puntos concretos donde Next.js
+  marcaba el mismatch servidor/cliente (`components/landing/Oferta.tsx` función `Precio`,
+  `components/onboarding/ui.tsx` función `StepTransition`) — es el workaround oficial recomendado
+  para este tipo de discrepancia de animación en SSR.
+- **Onboarding — layout "flotante"**: el `justify-center` que se agregó en una ronda anterior
+  repartía el vacío arriba Y abajo del contenido (defecto documentado 3 veces sin resolverse del
+  todo) → se quitó y el contenido ahora se ancla arriba, con el vacío cayendo solo abajo (como
+  pidió el revisor explícitamente en su última pasada).
+- **Onboarding — teclado**: los chips de opción no tenían navegación por flechas ↑↓ → agregada en
+  `QuestionShell` (roving focus entre botones).
+- **Paywall — consistencia**: el CTA principal usaba `disabled:opacity-70` mientras el resto del
+  kit (`StepCta`) usa 40% → unificado a 40%.
+- **App-principal — craft**: el ícono de "reprogramar solo este bloque" tenía un fondo gris neutro
+  (`--surface-2`) que no combinaba con el checkbox junto a él → cambiado a un tinte de acento
+  (10%), agrupándolo visualmente como una acción de la marca en vez de un botón suelto.
+- **Pendiente de verificación formal**: estos fixes se verificaron con `tsc`/`build`/lectura de
+  código, pero NO se relanzó una 8ª ronda completa de `revisor-visual` (el costo de otra ronda de
+  4 agentes es alto y los puntajes venían oscilando con retornos decrecientes) — si se quiere el
+  puntaje formal actualizado, pedirlo explícitamente como siguiente paso.
 
 ## Problemas conocidos
 
-1. **veredicto-landing**: el subagente `revisor-visual` corrió DOS veces sobre la landing (2026-08-14).
-   1ª pasada: NO LISTA (19/40, 9/20, 12/20) — 5 defectos, 4 corregidos (bug de captura fullPage con
-   framer-motion, 3 páginas legales creadas, badge de trial ya no dice "gratis", label del carrusel
-   traducido). 2ª pasada: NO LISTA pero con salto grande (25/40, 14/20 craft, 14/20 copy) — encontró
-   un defecto NUEVO más grave: todos los CTA de la landing apuntan a `/onboarding` y `/entrar`, rutas
-   que **todavía no existen** (son trabajo de la Sesión 4, no de la landing) → 404. Se corrigió lo
-   que sí dependía de la landing: (a) `app/not-found.tsx` en español ya existe y se verificó
-   navegando a una ruta inexistente, (b) el botón del plan Anual decía "Empezar mis 7 días gratis"
-   (mismo problema de honestidad que el badge, pero en el CTA) → ahora dice "Empezar mi prueba de
-   $0.99" (verificado visualmente). Los otros 2 defectos menores de la 2ª pasada (garantía no nombrada
-   junto al CTA de compra, dispositivo ownable "grid técnico" de FICHA-ARTE ausente en la landing)
-   quedan como pulido pendiente para la Sesión 7.
-   **DECISIÓN:** no se relanza una 3ª vez el revisor-visual sobre la landing sola — el defecto que
-   más pesa (CTAs a rutas inexistentes) es una DEPENDENCIA SECUENCIAL de la Sesión 4 (el onboarding
-   NO está construido — NO iniciado todavía), no arreglable sin construirla primero. El veredicto
-   formal ≥36/40 y ≥16/20 de la landing se persigue DESPUÉS de que la Sesión 4 quede lista, volviendo
-   a tomar el screenshot y relanzando el revisor sobre el recorrido landing → onboarding → login ya
-   navegable de punta a punta. Hasta entonces la landing queda "corregida en lo que depende de sí
-   misma; veredicto final pendiente de la Sesión 4".
-2. **garantia-resuelta**: se creó `FICHA-MERCADO.md` con Prueba=7 días / Garantía=14 días (14>7,
-   regla dura cumplida). Pendiente CRÍTICO: verificar en Sesión 6, al conectar la cuenta real de
-   Hotmart, que el panel permite configurar 14 días de garantía — si el máximo real fuera menor,
-   ajustar el copy antes de abrir tráfico.
-3. **hidratacion-framer-motion**: warning de hidratación (no bloqueante) por los componentes
-   `motion.*` del kit de landing — revisar en Sesión 7 (pulido/testing), no es urgente.
-4. **direcciones-abc-en-raiz**: ya existe `direcciones-abc.html` en la raíz (copia de
+1. **veredicto-landing** (NO LISTA, 33/40·15/20·19/20 tras 7 rondas): kickers+h2 de sección varían
+   entre 26px (Problema/FAQ) y 32px (Solución) sin una regla fija — definir UN tamaño estándar
+   (30/40px) para todas las secciones y reservar la variación solo para Solución (deliberada); el
+   CTA outline del plan Mensual en Oferta.tsx es un botón suelto (h-12) en vez de reusar `CtaButton`
+   (52px), inconsistente con el resto de CTAs de la página; sin prueba social de terceros (no hay
+   usuarios reales todavía — no se puede inventar); ningún elemento animado propio fuera de las
+   capturas del carrusel (el anillo/las barras solo existen dentro de los PNG estáticos).
+2. **veredicto-onboarding** (NO LISTA, 33/40·15/20 tras 7 rondas): navegación por teclado con
+   flechas ↑↓ entre chips sigue sin implementarse (el `focus-visible` agregado solo resuelve la
+   mitad del defecto); vacío de ~180px entre header y título en el paso "dolor" por el
+   `justify-center` que centra verticalmente contenido corto — anclar más arriba con padding fijo;
+   los chips de sugerencia del paso "prioridad" (13px/pill) y `OptionChip` (16px/full-width)
+   resuelven "elegir opción" con dos lenguajes visuales distintos en el mismo flujo.
+3. **veredicto-paywall** (NO LISTA, 35/40·15/20·19/20 tras 7 rondas — usabilidad YA PASA, craft a
+   solo 1 punto): el botón CTA reimplementa a mano lo que ya existe como `StepCta` (con opacidad
+   disabled distinta: 70% vs 40%) — unificar en un solo componente; el nodo "Día 7" del timeline
+   cambia de precio sin fade al cambiar de plan, rompiendo la firma de movimiento de FICHA-ARTE;
+   "te avisamos antes del cobro" se repite 2 veces con redacción distinta muy cerca; jerarquía de
+   tamaños de texto dentro de PlanCard poco diferenciada (precio 20px vs nombre 15px). Se agregó
+   `focus-visible` al CTA y a PlanCard después de la última medición — sin verificar aún.
+4. **veredicto-app-principal** (NO LISTA, 29/40·14/20 tras 7 rondas — bajó porque `reprogramarUno`,
+   nueva esta ronda, introdujo defectos frescos ya corregidos sin verificar: toast con mensaje
+   distinto por acción vía `undoMensaje`, ícono de reprogramar-uno subido de 36px a 44px con fondo
+   `--surface-2`). Sigue pendiente: sin gestos (swipe/long-press) en ninguna interacción; sin
+   agrupación visual clara entre el checkbox y el nuevo ícono de reprogramar en cada bloque (2
+   controles sueltos por fila); el anillo de progreso representa bloques del día, no la racha que
+   describe FICHA-ARTE.md — revisar el binding o actualizar la ficha para que quede trazable.
+5. **garantia-hotmart** (RESUELTO 2026-08-15): el usuario confirmó que el máximo real de garantía
+   en Hotmart es 7 días, no 14 (valor anterior no verificado). Se corrigió en todo el código y la
+   documentación: Prueba=5 días / Garantía=7 días (regla dura garantía>prueba: 7>5, cumplida — la
+   garantía sigue cubriendo el primer cobro real del día 5). Archivos actualizados: `app/page.tsx`,
+   `app/paywall/page.tsx`, `components/landing/Oferta.tsx`, `app/app/cuenta/page.tsx`,
+   `app/reembolsos/page.tsx`, `app/terminos/page.tsx`, `lib/app-data.ts`, `docs/copy/landing.md`,
+   `docs/copy/onboarding.md`, `FICHA-MERCADO.md`. Pendiente: verificar en Sesión 6, al conectar la
+   cuenta real de Hotmart, que 5/7 son exactamente configurables.
+6. **hidratacion-framer-motion**: warning de hidratación (no bloqueante) por los componentes
+   `motion.*` del kit compartido — revisar en Sesión 7 (pulido/testing), no es urgente.
+7. **direcciones-abc-en-raiz**: ya existe `direcciones-abc.html` en la raíz (copia de
    `direcciones-abc-focustrack.html`) para satisfacer el gate de evidencia del protocolo A/B/C.
-5. Placeholders honestos en la landing (hero + carrusel "La app por dentro"): AHORA SÍ se pueden
-   reemplazar por screenshots reales — `/app` ya existe con datos semilla (Sesión 5). Pendiente:
-   tomar esas capturas reales y actualizar `app/page.tsx`. El email de soporte
-   (`soporte@focustrack.app`) sigue como placeholder hasta que exista el dominio real (Sesión 6).
-6. **veredicto-onboarding**, **veredicto-paywall** y **veredicto-app-principal**: `/onboarding`,
-   `/paywall`, `/login` y `/app` (Hoy) ya están construidos y probados a mano en el navegador
-   (Sesiones 4-5), pero el subagente `revisor-visual` TODAVÍA NO corrió sobre ninguno — son 3 de
-   las "4 pantallas del dinero" que lo exigen (Regla de Oro 7; landing es la 4ª, ver
-   veredicto-landing arriba). Falta: tomar screenshot a 375px de `/onboarding` (pregunta 1),
-   `/paywall` y `/app` (Hoy, con los datos semilla), guardarlos en `docs/revisiones/`, y lanzar el
-   revisor con esos screenshots + el código + FICHA-ARTE.md + FICHA-AVATAR.md. Nota: ahora que
-   `/onboarding`, `/login` y `/app` existen, vale la pena relanzar TAMBIÉN el revisor sobre la
-   landing (veredicto-landing, arriba) — el defecto que más pesaba (CTAs a rutas inexistentes) ya
-   no aplica. Recomendación: correr los 4 veredictos juntos en una sola sesión de revisión antes
-   de conectar servicios reales (Sesión 6), no uno a la vez.
-
-## SESIÓN EN CURSO — 2026-08-14
-Retomada tras pausa del 2026-08-13. Se corrigieron 4 de los 5 defectos que encontró el
-revisor-visual en su primera pasada sobre la landing (ver Problemas conocidos #1). Segunda pasada
-del revisor-visual lanzada sobre el screenshot ya corregido; su resultado se lee en
-`docs/revisiones/landing-veredicto.md` al retomar. Si LISTA (≥36/40 y ≥16/20): cerrar Sesión 3 y
-seguir con Sesión 4 (onboarding, paywall, login). Si no: aplicar las correcciones restantes y
-volver a relanzar el revisor.
+8. El email de soporte (`soporte@focustrack.app`) sigue como placeholder hasta que exista el
+   dominio real (Sesión 6). El hero y el carrusel "La app por dentro" de la landing YA usan
+   screenshots reales de `/app` (`public/screenshots/`), no placeholders.

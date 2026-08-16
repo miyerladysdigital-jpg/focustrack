@@ -22,7 +22,7 @@ export default function TerminosPage() {
         <div>
           <h2 className="text-[17px] font-semibold text-[var(--text-primary)]">Suscripción y cobros</h2>
           <p className="mt-2">
-            El acceso se activa con una prueba de 7 días por $0.99 USD. Al terminar la prueba, se cobra
+            El acceso se activa con una prueba de 5 días por $0.99 USD. Al terminar la prueba, se cobra
             el plan que elegiste ($3.99 USD/mes o $24.99 USD/año) salvo que canceles antes. Te avisamos
             por correo 3 días antes de cada cobro. Puedes cancelar en cualquier momento desde tu cuenta
             o escribiendo a soporte@focustrack.app — el acceso se mantiene hasta el fin del período ya

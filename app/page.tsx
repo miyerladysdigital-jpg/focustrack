@@ -27,13 +27,14 @@ export default function LandingFocusTrack() {
       {/* 1. HERO */}
       <Hero
         appName="FocusTrack"
+        logo={<img src="/logo-icon.png" alt="" className="size-6" />}
         loginHref="/login"
         h1Marked="Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa."
         subtitleMarked="El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b]."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        socialProof={<span>Recién lanzamos: 7 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.</span>}
-        visualPlaceholderSugerencia="captura del timeline de hoy con el Botón de Reprogramación Sin Culpa visible"
+        socialProof={<span>Recién lanzamos: 5 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.</span>}
+        visual={<img src="/screenshots/hoy.png" alt="El timeline de hoy en FocusTrack, con el Botón de Reprogramación Sin Culpa" width={375} height={812} className="w-full" />}
       />
 
       {/* 2. PROBLEMA */}
@@ -84,10 +85,10 @@ export default function LandingFocusTrack() {
       <AppPorDentro
         tituloMarked="Tu día, [acento]ya organizado[/acento]"
         frames={[
-          { label: 'Tu primer timeline', nombrePantalla: 'Tu primer plan' },
-          { label: 'Tu día en bloques', nombrePantalla: 'Timeline de hoy' },
-          { label: 'Reprograma sin culpa', nombrePantalla: 'Reprogramación' },
-          { label: 'Vacía tu cabeza', nombrePantalla: 'Buzón de pensamientos' },
+          { label: 'Tu día en bloques', src: '/screenshots/hoy.png', alt: 'Timeline de hoy con bloques y el Botón de Reprogramación Sin Culpa' },
+          { label: 'Vacía tu cabeza', src: '/screenshots/buzon.png', alt: 'Buzón de pensamientos de FocusTrack' },
+          { label: 'Tu patrón semanal', src: '/screenshots/semana.png', alt: 'Vista de la semana con racha y días activos' },
+          { label: 'Tu plan, siempre claro', src: '/screenshots/cuenta.png', alt: 'Pantalla de cuenta con el estado de la prueba' },
         ]}
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
@@ -95,9 +96,9 @@ export default function LandingFocusTrack() {
 
       {/* 6. OFERTA */}
       <Oferta
-        tituloMarked="Prueba 7 días por $0.99. Sigue por [acento]$2.08/mes[/acento]"
-        trialDias={7}
-        trialLabel="Prueba 7 días por $0.99"
+        tituloMarked="Prueba 5 días por $0.99. Sigue por [acento]$2.08/mes[/acento]"
+        trialDias={5}
+        trialLabel="Prueba 5 días por $0.99"
         stack={{
           lineas: [
             { resultado: 'FocusTrack Pro (12 meses)', valor: '$47.88' },
@@ -119,7 +120,7 @@ export default function LandingFocusTrack() {
             'Timeline ilimitado',
             'Botón de Reprogramación Sin Culpa',
             'Buzón sin límite',
-            'Sync con tu calendario',
+            'Se sincroniza con tu calendario',
           ],
         }}
         mensual={{
@@ -140,7 +141,7 @@ export default function LandingFocusTrack() {
       <Garantia
         nombre="la Garantía Cero Sorpresas"
         condicionMarked="Te avisamos [b]3 días antes[/b] de cada cobro y cancelas en 1 toque, sin llamadas ni formularios. Si el trial no te convenció, no pagas nada más."
-        pisoLegal="Respaldada por 14 días de garantía Hotmart"
+        pisoLegal="Respaldada por 7 días de garantía Hotmart"
       />
 
       {/* 8. FAQ */}
@@ -171,6 +172,11 @@ export default function LandingFocusTrack() {
             respuestaMarked:
               'Una lista guarda tareas; FocusTrack [b]decide y reorganiza[/b] cuando tu día cambia — eso es lo que una lista no hace.',
           },
+          {
+            pregunta: '¿Es otra app con mascotas o gamificación infantil?',
+            respuestaMarked:
+              'No. FocusTrack es [b]diseño adulto y minimalista[/b] — cero mascotas, cero gemas, cero alarmas que interrumpen. Si buscas algo serio para organizar tu día, es para ti.',
+          },
         ]}
       />
 
@@ -180,8 +186,8 @@ export default function LandingFocusTrack() {
         futurePacingMarked="Mañana abres los ojos, ves tu día en bloques, y si algo se cae, lo arreglas en 1 toque — sin culpa, sin drama."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        recap="Garantía Cero Sorpresas · 7 días de prueba por $0.99"
-        psMarked="PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 7 días de prueba."
+        recap="Garantía Cero Sorpresas · 5 días de prueba por $0.99"
+        psMarked="PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 5 días de prueba."
       />
 
       {/* 10. FOOTER LEGAL */}

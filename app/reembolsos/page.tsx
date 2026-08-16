@@ -14,7 +14,7 @@ export default function ReembolsosPage() {
         <div>
           <h2 className="text-[17px] font-semibold text-[var(--text-primary)]">La Garantía Cero Sorpresas</h2>
           <p className="mt-2">
-            Tienes 14 días de garantía desde tu compra. Si en ese plazo FocusTrack no te sirve, escribes
+            Tienes 7 días de garantía desde tu compra. Si en ese plazo FocusTrack no te sirve, escribes
             un correo a soporte@focustrack.app y te devolvemos el dinero — sin preguntas, sin
             formularios largos.
           </p>

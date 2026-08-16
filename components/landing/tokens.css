@@ -53,3 +53,13 @@ body {
   color: var(--text-primary);
   font-family: var(--font-body);
 }
+
+/* Dispositivo ownable (FICHA-ARTE.md → "grid técnico de fondo") — la textura de marca que
+   distingue a FocusTrack de un template genérico. Reutilizable en cualquier pantalla:
+   landing, funnel (onboarding/paywall/login) y app interna. */
+.grid-tecnico {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--text-primary) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--text-primary) 7%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

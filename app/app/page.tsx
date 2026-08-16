@@ -4,38 +4,98 @@
 // (1) dato de hoy · (2) acción de 1 tap · (3) racha visible · (4) insight que no sabía.
 // Protagonista: el timeline del día. El Botón de Reprogramación Sin Culpa es el mecanismo.
 
-import { useMemo } from 'react';
-import { motion } from 'motion/react';
-import { RefreshCw, Flame, Check } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle } from 'lucide-react';
+import type { Block } from '@/lib/app-data';
 import { useAppState, formatTodayLabel } from '@/lib/app-data';
+import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
+
+function useCountUp(target: number, reduce: boolean) {
+  const [value, setValue] = useState(reduce ? target : 0);
+  useEffect(() => {
+    if (reduce) {
+      setValue(target);
+      return;
+    }
+    let raf: number;
+    const start = performance.now();
+    const duration = 450;
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      setValue(Math.round(t * target));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, reduce]);
+  return value;
+}
+
+const ENERGIA_LABEL: Record<Block['energyTag'], string> = { alta: 'de más energía', media: 'de energía media', baja: 'de energía baja' };
 
 export default function HoyPage() {
-  const { state, ready, todayBlocks, markDone, reprogramarSinCulpa } = useAppState();
+  const {
+    state,
+    ready,
+    dataError,
+    todayBlocks,
+    markDone,
+    reprogramarSinCulpa,
+    reprogramarUno,
+    undoSnapshot,
+    undoMensaje,
+    deshacerReprogramar,
+  } = useAppState();
+  const reduce = useReducedMotion();
 
   const pendingCount = todayBlocks.filter((b) => b.status === 'pending').length;
   const doneCount = todayBlocks.filter((b) => b.status === 'done').length;
   const total = todayBlocks.length || 1;
   const pct = Math.round((doneCount / total) * 100);
+  const animatedDone = useCountUp(doneCount, !!reduce);
+  const diaCompleto = todayBlocks.length > 0 && doneCount === todayBlocks.length;
 
+  // Insight derivado de los bloques REALES de hoy (no solo la racha) — cambia con el uso.
   const insight = useMemo(() => {
-    if (state.streakDays < 1) return 'Hoy es un buen día para empezar tu primer bloque.';
-    return `Con tus ${state.streakDays} días seguidos, tu bloque de más energía suele ser el de la mañana.`;
-  }, [state.streakDays]);
+    const hechos = todayBlocks.filter((b) => b.status === 'done');
+    if (hechos.length === 0) {
+      return state.streakDays < 1
+        ? 'Hoy es un buen día para empezar tu primer bloque.'
+        : `Con tus ${state.streakDays} días seguidos, ya sabes por dónde empezar.`;
+    }
+    const conteo: Partial<Record<Block['energyTag'], number>> = {};
+    hechos.forEach((b) => {
+      conteo[b.energyTag] = (conteo[b.energyTag] ?? 0) + 1;
+    });
+    const topEnergia = (Object.entries(conteo) as [Block['energyTag'], number][]).sort((a, b) => b[1] - a[1])[0][0];
+    const primero = hechos.reduce((min, b) => (b.time < min.time ? b : min));
+    return `Ya completaste ${hechos.length} bloque${hechos.length > 1 ? 's' : ''} hoy — el de las ${primero.time} fue ${ENERGIA_LABEL[topEnergia]}.`;
+  }, [todayBlocks, state.streakDays]);
 
-  if (!ready) return null;
+  if (!ready) return <ScreenSkeleton variant="hoy" />;
 
   return (
     <div className="flex flex-col">
+      {dataError && (
+        <div className="mb-4 flex items-start gap-2 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--warning)_35%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)] px-4 py-3">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-[var(--warning)]" />
+          <p className="text-[13px] leading-snug text-[var(--text-primary)]">
+            No pudimos cargar tus datos guardados en este dispositivo — empezaste de nuevo con un día de ejemplo.
+          </p>
+        </div>
+      )}
       {/* (1) DATO DE HOY */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[13px] capitalize text-[var(--text-secondary)]">{formatTodayLabel()}</p>
+          <p className="text-[13px] text-[var(--text-secondary)]">{formatTodayLabel()}</p>
           <h1 className="mt-0.5 text-[24px] font-bold leading-[1.15] [font-family:var(--font-display)]">
             Hola, {state.userName}
           </h1>
         </div>
-        {/* (3) racha visible, no protagonista */}
-        <div className="flex items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-3 py-1.5">
+        {/* (3) racha visible, no protagonista — texto plano, no simula ser un botón */}
+        <div className="flex items-center gap-1.5 px-1 py-1.5">
           <Flame size={14} className="text-[var(--accent)]" />
           <span className="text-[13px] font-semibold text-[var(--accent)]">{state.streakDays} días</span>
         </div>
@@ -46,8 +106,8 @@ export default function HoyPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">Tu día</p>
-            <p className="mt-1 text-[28px] font-bold tabular-nums leading-none [font-family:var(--font-display)]">
-              {doneCount}/{todayBlocks.length}
+            <p className="mt-1 text-[26px] font-bold tabular-nums leading-none [font-family:var(--font-display)]">
+              {animatedDone}/{todayBlocks.length}
               <span className="ml-1.5 text-[14px] font-normal text-[var(--text-secondary)]">bloques listos</span>
             </p>
           </div>
@@ -64,52 +124,99 @@ export default function HoyPage() {
                 stroke="var(--accent)"
                 strokeDasharray={150.8}
                 animate={{ strokeDashoffset: 150.8 - (150.8 * pct) / 100 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: reduce ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
               />
             </svg>
           </div>
         </div>
 
-        {/* (4) insight que no sabía — voz del mecanismo */}
-        <p className="mt-4 text-[13px] leading-snug text-[var(--text-secondary)]">{insight}</p>
+        {/* (4) insight que no sabía — voz del mecanismo. Fondo hundido: 3er nivel de profundidad de FICHA-ARTE */}
+        <p className="mt-4 rounded-[var(--radius-button)] bg-[var(--surface-2)] px-3 py-2.5 text-[13px] leading-snug text-[var(--text-secondary)]">
+          {insight}
+        </p>
+
+        <AnimatePresence>
+          {diaCompleto && (
+            <motion.p
+              initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: reduce ? 'tween' : 'spring', duration: reduce ? 0.15 : undefined, bounce: 0.4 }}
+              className="mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-[var(--accent)]"
+            >
+              <Check size={14} strokeWidth={3} /> Completaste tu día
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Timeline de bloques */}
+      {/* Timeline de bloques — o el empty state si hoy no hay ninguno */}
+      {todayBlocks.length === 0 ? (
+        <div className="mt-6 flex flex-col items-center rounded-[var(--radius-card)] border border-dashed border-[color-mix(in_oklab,var(--text-tertiary)_30%,transparent)] px-6 py-10 text-center">
+          <CalendarPlus size={22} className="text-[var(--text-tertiary)]" />
+          <p className="mt-3 text-[14px] leading-snug text-[var(--text-secondary)]">
+            Hoy no tienes bloques todavía. Anota algo en tu buzón y conviértelo en tu primer bloque.
+          </p>
+          <Link
+            href="/app/buzon"
+            className="mt-4 flex h-11 items-center justify-center rounded-[var(--radius-button)] bg-[var(--accent)] px-5 text-[14px] font-semibold text-[var(--bg)] [touch-action:manipulation]"
+          >
+            Ir a mi buzón
+          </Link>
+        </div>
+      ) : (
       <div className="mt-6 flex flex-col gap-3">
         {todayBlocks.map((b, i) => (
           <motion.div
             key={b.id}
-            initial={{ opacity: 0, y: 8 }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05, duration: 0.3 }}
+            transition={{ delay: reduce ? 0 : i * 0.05, duration: reduce ? 0.15 : 0.3 }}
             className={`flex items-center gap-3 rounded-[var(--radius-card)] border p-4 ${
               b.status === 'done'
                 ? 'border-[color-mix(in_oklab,var(--text-tertiary)_15%,transparent)] bg-[var(--surface)] opacity-60'
                 : b.status === 'rescheduled'
                   ? 'border-[color-mix(in_oklab,var(--warning)_35%,transparent)] bg-[color-mix(in_oklab,var(--warning)_6%,transparent)]'
-                  : 'border-[color-mix(in_oklab,var(--accent)_30%,transparent)] bg-[color-mix(in_oklab,var(--accent)_5%,transparent)]'
+                  : 'border-[color-mix(in_oklab,var(--accent)_40%,transparent)] bg-[color-mix(in_oklab,var(--accent)_17%,transparent)]'
             }`}
           >
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.9 }}
               onClick={() => markDone(b.id)}
-              disabled={b.status === 'done'}
-              aria-label={b.status === 'done' ? 'Completado' : 'Marcar como hecho'}
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 [touch-action:manipulation] ${
-                b.status === 'done' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--bg)]' : 'border-[var(--text-tertiary)]'
-              }`}
+              aria-label={b.status === 'done' ? 'Marcar como pendiente' : 'Marcar como hecho'}
+              className="flex h-11 w-11 shrink-0 items-center justify-center [touch-action:manipulation]"
             >
-              {b.status === 'done' && <Check size={16} strokeWidth={3} />}
-            </button>
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                  b.status === 'done' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--bg)]' : 'border-[var(--text-tertiary)]'
+                }`}
+              >
+                {b.status === 'done' && <Check size={16} strokeWidth={3} />}
+              </span>
+            </motion.button>
             <div className="min-w-0 flex-1">
-              <p className={`truncate text-[15px] font-medium ${b.status === 'done' ? 'line-through' : ''}`}>{b.title}</p>
+              <p className={`line-clamp-2 text-[15px] font-medium leading-snug ${b.status === 'done' ? 'line-through' : ''}`}>{b.title}</p>
               <p className="text-[12px] text-[var(--text-secondary)]">
                 {b.time} {b.status === 'rescheduled' && '· reprogramado'}
               </p>
             </div>
+            {/* Control granular: reprogramar SOLO este bloque, sin mover el resto del día */}
+            {b.status === 'pending' && (
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => reprogramarUno(b.id)}
+                aria-label="Reprogramar solo este bloque"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] [touch-action:manipulation]"
+              >
+                <RefreshCw size={15} />
+              </motion.button>
+            )}
           </motion.div>
         ))}
       </div>
+      )}
 
       {/* (2) Acción de 1 tap — el mecanismo, contextual: solo si hay pendientes */}
       {pendingCount > 0 && (
@@ -124,6 +231,37 @@ export default function HoyPage() {
           Reprogramar sin culpa
         </motion.button>
       )}
+
+      {/* Deshacer — la reprogramación no deja al usuario sin salida (32, enriquecimiento #2) */}
+      <AnimatePresence>
+        {undoSnapshot && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: reduce ? 0.1 : 0.25 }}
+            className="fixed inset-x-5 bottom-20 z-20 mx-auto max-w-[400px] overflow-hidden rounded-[var(--radius-button)] bg-[var(--text-primary)] shadow-[var(--shadow-2)]"
+          >
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-[13px] text-[var(--bg)]">{undoMensaje}</span>
+              <button
+                type="button"
+                onClick={deshacerReprogramar}
+                className="flex items-center gap-1 text-[13px] font-semibold text-[var(--bg)] [touch-action:manipulation]"
+              >
+                <Undo2 size={14} /> Deshacer
+              </button>
+            </div>
+            {/* Cuenta regresiva visible de los 5s antes de que el "Deshacer" desaparezca */}
+            <motion.div
+              className="h-[3px] bg-[color-mix(in_oklab,var(--bg)_45%,transparent)]"
+              initial={{ width: '100%' }}
+              animate={{ width: '0%' }}
+              transition={{ duration: reduce ? 0 : 5, ease: 'linear' }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

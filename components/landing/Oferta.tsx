@@ -8,8 +8,9 @@
 // la card recomendada (el uso canónico de la técnica) · checkmarks custom.
 // El destino de los CTAs sigue al MODELO de 02C (checkout vs /onboarding).
 
-import { motion } from 'motion/react';
-import { Star } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView, useReducedMotion } from 'motion/react';
+import { Star, ShieldCheck } from 'lucide-react';
 import { CheckCustom, CtaButton, Hairline, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
 
@@ -64,12 +65,43 @@ function TrialBadge({ dias, label }: { dias: number; label?: string }) {
   );
 }
 
+function useCountUpPrice(target: number, active: boolean, reduce: boolean) {
+  const [value, setValue] = useState(reduce ? target : 0);
+  useEffect(() => {
+    if (!active) return;
+    if (reduce) {
+      setValue(target);
+      return;
+    }
+    let raf: number;
+    const start = performance.now();
+    const duration = 700;
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      setValue(target * t);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, target, reduce]);
+  return value;
+}
+
 function Precio({ plan }: { plan: PlanOferta }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const reduce = useReducedMotion();
+  const numero = parseFloat(plan.precioMes.replace(/[^0-9.]/g, '')) || 0;
+  const prefijo = plan.precioMes.match(/^[^0-9]*/)?.[0] ?? '';
+  const decimales = plan.precioMes.includes('.') ? 2 : 0;
+  const animado = useCountUpPrice(numero, inView, !!reduce);
+
   return (
-    <div>
+    <div ref={ref} suppressHydrationWarning>
       <p className="flex items-baseline gap-1">
         <span className="text-[36px] font-bold leading-none tabular-nums text-[var(--text-primary)] [font-family:var(--font-display)]">
-          {plan.precioMes}
+          {prefijo}
+          {animado.toFixed(decimales)}
         </span>
         <span className="text-[14px] text-[var(--text-secondary)]">{plan.sufijo ?? '/mes'}</span>
       </p>
@@ -109,7 +141,7 @@ export function Oferta({
   const { contenedor, item } = useReveal();
 
   return (
-    <SectionShell id={id} elevacion="base" ariaLabel="Planes y precios">
+    <SectionShell id={id} elevacion="base" ariaLabel="Planes y precios" className="grid-tecnico">
       <motion.div variants={contenedor} initial="hidden" whileInView="visible" viewport={VIEWPORT_ONCE}>
         <motion.div variants={item} className="mx-auto max-w-[620px] text-center">
           <Kicker>{kicker}</Kicker>
@@ -173,6 +205,10 @@ export function Oferta({
                   <CtaButton href={anual.ctaHref} fullMobile>
                     {anual.ctaLabel}
                   </CtaButton>
+                  <p className="mt-2 flex items-center justify-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
+                    <ShieldCheck size={14} className="text-[var(--accent)]" aria-hidden="true" />
+                    Respaldada por la Garantía Cero Sorpresas · 7 días
+                  </p>
                 </div>
               </div>
             </Hairline>
@@ -198,6 +234,10 @@ export function Oferta({
             >
               {mensual.ctaLabel}
             </motion.a>
+            <p className="mt-2 flex items-center justify-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
+              <ShieldCheck size={14} className="text-[var(--accent)]" aria-hidden="true" />
+              Respaldada por la Garantía Cero Sorpresas · 7 días
+            </p>
           </motion.div>
         </div>
       </motion.div>

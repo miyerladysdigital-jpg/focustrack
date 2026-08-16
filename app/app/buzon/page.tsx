@@ -7,12 +7,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Trash2, Inbox as InboxIcon } from 'lucide-react';
 import { useAppState, formatRelativeTime } from '@/lib/app-data';
+import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
 
 export default function BuzonPage() {
   const { state, ready, addInboxItem, removeInboxItem, convertInboxToBlock } = useAppState();
   const [text, setText] = useState('');
 
-  if (!ready) return null;
+  if (!ready) return <ScreenSkeleton />;
 
   const submit = () => {
     if (!text.trim()) return;

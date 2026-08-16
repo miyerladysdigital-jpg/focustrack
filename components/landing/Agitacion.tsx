@@ -30,7 +30,7 @@ export function Agitacion({ frases, contraste, id }: AgitacionProps) {
   const { contenedor, item } = useReveal();
 
   return (
-    <SectionShell id={id} elevacion="elevada" flush="top" ariaLabel="El costo de seguir igual">
+    <SectionShell id={id} elevacion="elevada" flush="top" ariaLabel="El costo de seguir igual" className="grid-tecnico">
       <motion.div
         variants={contenedor}
         initial="hidden"

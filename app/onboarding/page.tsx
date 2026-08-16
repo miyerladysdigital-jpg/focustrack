@@ -5,8 +5,8 @@
 // 50-DISENO-ONBOARDING-PAYWALL.md secciones A/A5/A6/B. Preguntas derivadas de
 // FICHA-AVATAR.md (dolores/deseos) — ver docs/copy/onboarding.md.
 
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import {
   FunnelScreen,
@@ -39,6 +39,7 @@ export default function OnboardingPage() {
   const { answers, update } = useAnswers();
   const [stepIndex, setStepIndex] = useState(0);
   const [prioridadInput, setPrioridadInput] = useState('');
+  const [prioridadHint, setPrioridadHint] = useState(false);
   const [dias, setDias] = useState(4);
 
   const current = STEPS[stepIndex] ?? 'loading';
@@ -46,13 +47,21 @@ export default function OnboardingPage() {
   const progressPct = isLoading ? 100 : Math.max(8, Math.round(((stepIndex + 1) / (STEPS.length + 1)) * 100));
 
   const goNext = () => setStepIndex((i) => i + 1);
-  const goBack = () => setStepIndex((i) => Math.max(0, i - 1));
 
-  const dolorPick = useAutoAdvance(() => {
+  const dolorPick = useAutoAdvance(answers.dolor, () => {
     goNext();
   });
-  const momentoPick = useAutoAdvance(() => goNext());
-  const energiaPick = useAutoAdvance(() => goNext());
+  const momentoPick = useAutoAdvance(answers.momento, () => goNext());
+  const energiaPick = useAutoAdvance(answers.energia, () => goNext());
+
+  // Cancela cualquier auto-avance pendiente (ventana de 300ms tras tocar un chip) antes de
+  // volver atrás — evita que un back inmediato se pierda por un goNext() disparado tarde.
+  const goBack = () => {
+    dolorPick.cancelPending();
+    momentoPick.cancelPending();
+    energiaPick.cancelPending();
+    setStepIndex((i) => Math.max(0, i - 1));
+  };
 
   if (isLoading) {
     return <LoadingScreen onDone={() => router.push('/paywall')} />;
@@ -60,10 +69,11 @@ export default function OnboardingPage() {
 
   return (
     <FunnelScreen>
-      <ProgressHeader progressPct={progressPct} onBack={goBack} showBack={stepIndex > 0} />
+      <ProgressHeader progressPct={progressPct} onBack={goBack} showBack={stepIndex > 0} onClose={() => router.push('/')} />
 
       <AnimatePresence mode="wait">
         <StepTransition stepKey={current}>
+          <div className="flex flex-1 flex-col">
           {current === 'dolor' && (
             <QuestionShell titulo="¿Qué es lo que más te complica organizar tu día?" subtitulo="Esto define cómo armamos tu plan.">
               {Object.keys(RECONOCIMIENTOS).map((opt) => (
@@ -88,7 +98,9 @@ export default function OnboardingPage() {
                   <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
               </div>
-              <h1 className="mt-5 text-[24px] font-bold leading-[1.2] [font-family:var(--font-display)]">Tiene sentido</h1>
+              <h1 className="mt-5 text-balance text-[28px] font-bold leading-[1.1] tracking-[-0.02em] [font-family:var(--font-display)]">
+                Tiene sentido
+              </h1>
               <p className="mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)]">
                 {RECONOCIMIENTOS[answers.dolor ?? ''] ?? RECONOCIMIENTOS['Una lista larga y no sé por dónde empezar']}
               </p>
@@ -138,7 +150,11 @@ export default function OnboardingPage() {
                     key={s}
                     type="button"
                     onClick={() => setPrioridadInput(s)}
-                    className="rounded-full border border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] px-3 py-2 text-[13px] text-[var(--text-secondary)]"
+                    className={`rounded-[var(--radius-button)] border px-3 py-2 text-[13px] shadow-[var(--shadow-1)] transition-colors duration-150 ${
+                      prioridadInput === s
+                        ? 'border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] font-semibold'
+                        : 'border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] text-[var(--text-secondary)]'
+                    }`}
                   >
                     {s}
                   </button>
@@ -147,14 +163,35 @@ export default function OnboardingPage() {
               <input
                 type="text"
                 autoFocus
+                maxLength={40}
                 value={prioridadInput}
-                onChange={(e) => setPrioridadInput(e.target.value)}
+                onChange={(e) => {
+                  setPrioridadInput(e.target.value);
+                  if (prioridadHint) setPrioridadHint(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter') return;
+                  if (prioridadInput.trim().length === 0) {
+                    setPrioridadHint(true);
+                    return;
+                  }
+                  update({ prioridad: prioridadInput.trim() });
+                  goNext();
+                }}
                 placeholder="Escribe tu prioridad de hoy"
-                className="mt-2 h-14 w-full rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface)] px-4 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
+                className={`mt-2 h-14 w-full rounded-[var(--radius-button)] border bg-[var(--surface)] px-4 text-[16px] text-[var(--text-primary)] outline-none focus:border-[var(--accent)] ${
+                  prioridadHint ? 'border-[var(--error)]' : 'border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)]'
+                }`}
               />
+              {prioridadHint && (
+                <p className="mt-2 text-[13px] text-[var(--error)]">Elige una sugerencia o escribe la tuya para continuar.</p>
+              )}
               <StepCta
-                disabled={prioridadInput.trim().length === 0}
                 onClick={() => {
+                  if (prioridadInput.trim().length === 0) {
+                    setPrioridadHint(true);
+                    return;
+                  }
                   update({ prioridad: prioridadInput.trim() });
                   goNext();
                 }}
@@ -166,7 +203,8 @@ export default function OnboardingPage() {
 
           {current === 'compromiso' && (
             <QuestionShell titulo="¿Cuántos días a la semana quieres sostener esto?">
-              <div className="mt-2 flex flex-col items-center">
+              {/* Superficie hundida (3er nivel de profundidad de FICHA-ARTE) para el slider */}
+              <div className="mt-2 flex flex-col items-center rounded-[var(--radius-card)] bg-[var(--surface-2)] px-5 py-6">
                 <p className="text-[44px] font-bold tabular-nums leading-none text-[var(--text-primary)] [font-family:var(--font-display)]">
                   {dias}
                 </p>
@@ -197,6 +235,7 @@ export default function OnboardingPage() {
               </StepCta>
             </QuestionShell>
           )}
+          </div>
         </StepTransition>
       </AnimatePresence>
     </FunnelScreen>
@@ -206,6 +245,7 @@ export default function OnboardingPage() {
 /* ── B. LOADING "Construyendo tu día…" — 4-6s, líneas personalizadas, NUNCA spinner ── */
 function LoadingScreen({ onDone }: { onDone: () => void }) {
   const { answers } = useAnswers();
+  const reduce = useReducedMotion();
   const lines = [
     `Analizando tu prioridad: ${answers.prioridad || 'tu tarea de hoy'}`,
     `Ajustando a tu energía: ${(answers.energia || 'media').split(' —')[0]}`,
@@ -214,7 +254,7 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
   ];
   const [visibleCount, setVisibleCount] = useState(0);
 
-  useState(() => {
+  useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
       i += 1;
@@ -225,7 +265,8 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
       }
     }, 750);
     return () => clearInterval(interval);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pct = Math.round((visibleCount / lines.length) * 100);
 
@@ -245,7 +286,7 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
               stroke="var(--accent)"
               strokeDasharray={301.6}
               animate={{ strokeDashoffset: 301.6 - (301.6 * pct) / 100 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: reduce ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
             />
           </svg>
           <span className="absolute text-[22px] font-bold tabular-nums [font-family:var(--font-display)]">{pct}%</span>

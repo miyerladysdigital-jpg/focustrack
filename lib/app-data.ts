@@ -26,8 +26,9 @@ export interface InboxItem {
 export interface AppState {
   userName: string;
   streakDays: number;
-  trialDay: number; // 1-7
+  trialDay: number; // 1-5
   plan: 'trial' | 'anual' | 'mensual';
+  cancelado: boolean; // "cancelas en 1 toque" — la promesa necesita una acción real en Cuenta
   blocksByDate: Record<string, Block[]>; // key: 'YYYY-MM-DD'
   inbox: InboxItem[];
   weekCompletion: number[]; // 7 valores 0-100, lunes→domingo
@@ -47,6 +48,7 @@ function seedState(): AppState {
     streakDays: 5,
     trialDay: 3,
     plan: 'trial',
+    cancelado: false,
     blocksByDate: {
       [todayKey(0)]: [
         { id: 'b1', title: 'Escribir propuesta para cliente nuevo', time: '09:00', status: 'done', energyTag: 'alta' },
@@ -65,18 +67,18 @@ function seedState(): AppState {
   };
 }
 
-export function loadState(): AppState {
-  if (typeof window === 'undefined') return seedState();
+export function loadState(): { state: AppState; dataError: boolean } {
+  if (typeof window === 'undefined') return { state: seedState(), dataError: false };
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) {
       const seeded = seedState();
       window.localStorage.setItem(KEY, JSON.stringify(seeded));
-      return seeded;
+      return { state: seeded, dataError: false };
     }
-    return JSON.parse(raw);
+    return { state: JSON.parse(raw), dataError: false };
   } catch {
-    return seedState();
+    return { state: seedState(), dataError: true };
   }
 }
 
@@ -88,9 +90,12 @@ function saveState(state: AppState) {
 export function useAppState() {
   const [state, setState] = useState<AppState>(seedState());
   const [ready, setReady] = useState(false);
+  const [dataError, setDataError] = useState(false);
 
   useEffect(() => {
-    setState(loadState());
+    const loaded = loadState();
+    setState(loaded.state);
+    setDataError(loaded.dataError);
     setReady(true);
   }, []);
 
@@ -104,19 +109,31 @@ export function useAppState() {
 
   const todayBlocks = state.blocksByDate[todayKey(0)] ?? [];
 
+  // markDone alterna (toggle): un tap accidental se deshace tocando de nuevo — nunca deja
+  // al usuario sin salida (enriquecimiento #2 de 32-DEL-MVP-AL-PRODUCTO).
   const markDone = (id: string) => {
     update((prev) => ({
       ...prev,
       blocksByDate: {
         ...prev.blocksByDate,
-        [todayKey(0)]: (prev.blocksByDate[todayKey(0)] ?? []).map((b) => (b.id === id ? { ...b, status: 'done' } : b)),
+        [todayKey(0)]: (prev.blocksByDate[todayKey(0)] ?? []).map((b) =>
+          b.id === id ? { ...b, status: b.status === 'done' ? 'pending' : 'done' } : b
+        ),
       },
     }));
   };
 
+  // Snapshot para "Deshacer" tras reprogramar — la reprogramación es reversible por
+  // unos segundos, nunca una acción sin salida.
+  const [undoSnapshot, setUndoSnapshot] = useState<Block[] | null>(null);
+  // El toast de "Deshacer" es compartido entre reprogramar TODO y reprogramar UN bloque —
+  // el mensaje debe distinguir cuál pasó, o miente sobre el alcance de la acción.
+  const [undoMensaje, setUndoMensaje] = useState('');
+
   const reprogramarSinCulpa = () => {
     // El mecanismo: los bloques pendientes de hoy se marcan "reprogramado" (nunca se
     // borran ni cuentan como fallo) y se re-esparcen en horarios futuros del mismo día.
+    const before = state.blocksByDate[todayKey(0)] ?? [];
     update((prev) => {
       const blocks = prev.blocksByDate[todayKey(0)] ?? [];
       const pending = blocks.filter((b) => b.status === 'pending');
@@ -130,6 +147,42 @@ export function useAppState() {
       });
       return { ...prev, blocksByDate: { ...prev.blocksByDate, [todayKey(0)]: updated } };
     });
+    setUndoSnapshot(before);
+    setUndoMensaje('Reprogramaste tu día');
+    setTimeout(() => setUndoSnapshot(null), 5000);
+  };
+
+  // Reprograma UN solo bloque (a diferencia de reprogramarSinCulpa, que mueve todos los
+  // pendientes) — control granular: el usuario no tiene por qué mover todo su día por un
+  // solo imprevisto.
+  const reprogramarUno = (id: string) => {
+    const before = state.blocksByDate[todayKey(0)] ?? [];
+    update((prev) => {
+      const blocks = prev.blocksByDate[todayKey(0)] ?? [];
+      const hour = Math.min(new Date().getHours() + 1, 21);
+      const updated = blocks.map((b) =>
+        b.id === id && b.status === 'pending'
+          ? { ...b, status: 'rescheduled' as BlockStatus, time: `${String(hour).padStart(2, '0')}:00` }
+          : b
+      );
+      return { ...prev, blocksByDate: { ...prev.blocksByDate, [todayKey(0)]: updated } };
+    });
+    setUndoSnapshot(before);
+    setUndoMensaje('Reprogramaste ese bloque');
+    setTimeout(() => setUndoSnapshot(null), 5000);
+  };
+
+  const deshacerReprogramar = () => {
+    if (!undoSnapshot) return;
+    update((prev) => ({ ...prev, blocksByDate: { ...prev.blocksByDate, [todayKey(0)]: undoSnapshot } }));
+    setUndoSnapshot(null);
+  };
+
+  // "cancelas en 1 toque" (landing/onboarding/paywall) necesita una acción real, no solo
+  // texto — sin Hotmart conectado (Sesión 6) esto marca el estado local; el webhook real
+  // reemplaza esto cuando se conecte.
+  const cancelarSuscripcion = () => {
+    update((prev) => ({ ...prev, cancelado: true }));
   };
 
   const addInboxItem = (text: string) => {
@@ -165,7 +218,22 @@ export function useAppState() {
     });
   };
 
-  return { state, ready, todayBlocks, markDone, reprogramarSinCulpa, addInboxItem, removeInboxItem, convertInboxToBlock };
+  return {
+    state,
+    ready,
+    dataError,
+    todayBlocks,
+    markDone,
+    reprogramarSinCulpa,
+    reprogramarUno,
+    undoSnapshot,
+    undoMensaje,
+    deshacerReprogramar,
+    cancelarSuscripcion,
+    addInboxItem,
+    removeInboxItem,
+    convertInboxToBlock,
+  };
 }
 
 export function formatRelativeTime(iso: string): string {
@@ -179,5 +247,6 @@ export function formatRelativeTime(iso: string): string {
 
 export function formatTodayLabel(): string {
   const d = new Date();
-  return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const label = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }

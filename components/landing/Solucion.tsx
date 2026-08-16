@@ -54,7 +54,7 @@ export function Solucion({
   const { contenedor, item } = useReveal();
 
   return (
-    <SectionShell id={id} elevacion="base" ariaLabel="Cómo funciona">
+    <SectionShell id={id} elevacion="base" ariaLabel="Cómo funciona" className="grid-tecnico">
       <motion.div
         variants={contenedor}
         initial="hidden"
@@ -64,7 +64,7 @@ export function Solucion({
       >
         <motion.div variants={item}>
           <Kicker>{kicker}</Kicker>
-          <h2 className="text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]">
+          <h2 className="text-balance text-[32px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[44px]">
             <MarkedCopy text={tituloMarked} />
           </h2>
         </motion.div>

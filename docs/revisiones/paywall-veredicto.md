@@ -1,0 +1,14 @@
+# VEREDICTO revisor-visual — paywall
+Fecha: 2026-08-14 00:00
+Screenshot: docs/revisiones/paywall-375.png
+Usabilidad: 35/40
+Craft: 15/20
+Copy (si vende): 19/20
+Fidelidad (si hubo referencia): N-A
+Veredicto: NO LISTA
+Top defectos:
+1. [PlanCard y botón CTA "Empezar mi prueba de $0.99", app/paywall/page.tsx] Sigue sin haber `:focus-visible` propio en las tarjetas de plan ni en el CTA principal — este es el MISMO defecto #4 de la ronda anterior, no está en la lista de las 4 correcciones aplicadas y sigue sin resolver en el código (grep confirma cero apariciones de `focus-visible` en el archivo y cero reset de outline en globals.css); un usuario de teclado no tiene ninguna señal de marca propia al tabular por la pantalla más importante del funnel de pago → copiar el patrón que ya usa `OptionChip` en components/onboarding/ui.tsx (`focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]`) en PlanCard y en el botón CTA.
+2. [Botón CTA principal] Reimplementa a mano el mismo botón que ya existe como `StepCta` en components/onboarding/ui.tsx, pero con `disabled:opacity-70` (StepCta usa `disabled:opacity-40`) y una sombra tintada adicional que StepCta no tiene — mismo tipo de componente con dos apariencias distintas del estado disabled en el mismo funnel → si el peso extra es intencional, agregar una variante a StepCta (`variant="hero"`) en vez de duplicar el markup; si no, unificar la opacidad disabled a 40%.
+3. [Timeline "Día 6" + bloque disclaimer bajo el CTA] El mensaje "te avisamos antes del cobro" se repite dos veces con redacción distinta muy cerca una de otra ("Día 6 — te avisamos / Correo antes de que se active tu plan" en el timeline, y "te avisamos antes del cobro" en el disclaimer de abajo) — refuerza el mismo hecho dos veces en vez de sumar información nueva, lo que compite con el principio "cada elemento se gana su lugar" → fusionar en un solo bloque de confianza o dejar que el timeline lo cuente una vez y que el disclaimer se enfoque solo en cancelación.
+4. [Timeline, nodo "Día 7 — 1er cobro recurrente"] Al cambiar de plan (Anual↔Mensual) el precio de ese nodo cambia de texto en el mismo frame, sin fade ni transición — se siente como un salto/glitch en vez de una actualización intencional, y rompe la firma de movimiento propia de FICHA-ARTE (easing 260ms en todo cambio de estado) → envolver ese texto en `AnimatePresence`/`motion.span` con `key={plan}` y fade de 150-200ms.
+5. [Cards de plan + CTA] Tras bajar el precio a 20px, la pantalla sigue usando ~6 tamaños de texto distintos (26/20/16/15/14/13/12px) sin agruparlos limpiamente en los 4 niveles display/title/body/label del propio DESIGN-CORE — dentro de la card, el precio (20px) y el nombre del plan (15px) quedan a una distancia de tamaño insuficiente para que se lean como dos niveles claros → subir el nombre del plan a 16-17px o bajar el precio a 18px para separar mejor los dos niveles.

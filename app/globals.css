@@ -18,3 +18,29 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
 }
+
+/* Slider craftado (onboarding, paso "compromiso") — el thumb/track nativo sin estilo
+   desentona con el resto del kit; se le da el mismo lenguaje visual (acento + radios). */
+input[type='range'] {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--text-tertiary) 18%, transparent);
+}
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+input[type='range']::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
