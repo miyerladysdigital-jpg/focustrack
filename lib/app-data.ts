@@ -298,15 +298,39 @@ export function useAppState() {
     await registrarActividadDeHoy(userId);
   };
 
+  // Deshacer reprograma Y también restaura una actividad eliminada — usa upsert porque un
+  // bloque eliminado ya no existe en la base (un update no lo recrearía).
   const deshacerReprogramar = async () => {
-    if (!undoSnapshot) return;
+    if (!undoSnapshot || !userId) return;
     const hoy = todayKey();
     const snapshot = undoSnapshot;
     setState((prev) => ({ ...prev, blocksByDate: { ...prev.blocksByDate, [hoy]: snapshot } }));
     setUndoSnapshot(null);
-    await Promise.all(
-      snapshot.map((b) => supabase.from('blocks').update({ status: b.status, start_time: `${b.time}:00` }).eq('id', b.id))
+    await supabase.from('blocks').upsert(
+      snapshot.map((b) => ({
+        id: b.id,
+        user_id: userId,
+        block_date: hoy,
+        start_time: `${b.time}:00`,
+        title: b.title,
+        status: b.status,
+        energy_tag: b.energyTag,
+      }))
     );
+  };
+
+  // Eliminar una actividad ya creada — reversible por 5s con "Deshacer" (32, enriquecimiento #2).
+  const eliminarBloque = async (id: string) => {
+    if (!userId) return;
+    const hoy = todayKey();
+    const before = state.blocksByDate[hoy] ?? [];
+    const updated = before.filter((b) => b.id !== id);
+    if (updated.length === before.length) return;
+    setState((prev) => ({ ...prev, blocksByDate: { ...prev.blocksByDate, [hoy]: updated } }));
+    setUndoSnapshot(before);
+    setUndoMensaje('Eliminaste esa actividad');
+    setTimeout(() => setUndoSnapshot(null), 5000);
+    await supabase.from('blocks').delete().eq('id', id);
   };
 
   // "cancelas en 1 toque" (landing/onboarding/paywall) necesita una acción real: marca el
@@ -376,6 +400,7 @@ export function useAppState() {
     sugerirHorariosPendientes,
     reprogramarSinCulpa,
     reprogramarUno,
+    eliminarBloque,
     undoSnapshot,
     undoMensaje,
     deshacerReprogramar,

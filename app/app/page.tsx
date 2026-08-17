@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle, X } from 'lucide-react';
+import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle, X, Trash2 } from 'lucide-react';
 import type { Block } from '@/lib/app-data';
 import { useAppState, useTimeFormat, formatHora, formatTodayLabel } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
@@ -50,6 +50,7 @@ export default function HoyPage() {
     sugerirHorariosPendientes,
     reprogramarSinCulpa,
     reprogramarUno,
+    eliminarBloque,
     undoSnapshot,
     undoMensaje,
     deshacerReprogramar,
@@ -258,6 +259,16 @@ export default function HoyPage() {
                   <RefreshCw size={15} />
                 </motion.button>
               )}
+              {/* Eliminar la actividad — reversible con "Deshacer" por 5s */}
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => eliminarBloque(b.id)}
+                aria-label="Eliminar esta actividad"
+                className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--text-tertiary)] [touch-action:manipulation]"
+              >
+                <Trash2 size={15} />
+              </motion.button>
             </div>
 
             {/* Elegir la hora antes de reprogramar — no se asigna sola */}
