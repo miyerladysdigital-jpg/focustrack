@@ -5,13 +5,22 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Trash2, Inbox as InboxIcon } from 'lucide-react';
+import { ArrowRight, Check, Trash2, Inbox as InboxIcon } from 'lucide-react';
 import { useAppState, formatRelativeTime } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
+
+function proximaHora(): string {
+  const hour = Math.min(new Date().getHours() + 1, 21);
+  return `${String(hour).padStart(2, '0')}:00`;
+}
 
 export default function BuzonPage() {
   const { state, ready, addInboxItem, removeInboxItem, convertInboxToBlock } = useAppState();
   const [text, setText] = useState('');
+  // Al convertir un pensamiento en bloque, el usuario elige la hora en vez de que se le
+  // asigne sola — el buzón sigue siendo captura sin fricción, la hora se decide al convertir.
+  const [eligiendoHora, setEligiendoHora] = useState<string | null>(null);
+  const [horaElegida, setHoraElegida] = useState(proximaHora());
 
   if (!ready) return <ScreenSkeleton />;
 
@@ -19,6 +28,16 @@ export default function BuzonPage() {
     if (!text.trim()) return;
     addInboxItem(text);
     setText('');
+  };
+
+  const abrirSelectorHora = (id: string) => {
+    setHoraElegida(proximaHora());
+    setEligiendoHora(id);
+  };
+
+  const confirmarConversion = (id: string) => {
+    convertInboxToBlock(id, horaElegida);
+    setEligiendoHora(null);
   };
 
   return (
@@ -70,28 +89,59 @@ export default function BuzonPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.2 }}
-              className="flex items-start gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--text-tertiary)_18%,transparent)] bg-[var(--surface)] p-4"
+              className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--text-tertiary)_18%,transparent)] bg-[var(--surface)] p-4"
             >
-              <div className="min-w-0 flex-1">
-                <p className="text-[15px] leading-snug text-[var(--text-primary)]">{item.text}</p>
-                <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{formatRelativeTime(item.createdAt)}</p>
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] leading-snug text-[var(--text-primary)]">{item.text}</p>
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">{formatRelativeTime(item.createdAt)}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => (eligiendoHora === item.id ? setEligiendoHora(null) : abrirSelectorHora(item.id))}
+                  aria-label="Convertir en bloque de hoy"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] [touch-action:manipulation]"
+                >
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeInboxItem(item.id)}
+                  aria-label="Eliminar"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--text-tertiary)] [touch-action:manipulation]"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => convertInboxToBlock(item.id)}
-                aria-label="Convertir en bloque de hoy"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] [touch-action:manipulation]"
-              >
-                <ArrowRight size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => removeInboxItem(item.id)}
-                aria-label="Eliminar"
-                className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--text-tertiary)] [touch-action:manipulation]"
-              >
-                <Trash2 size={16} />
-              </button>
+
+              {/* Elegir la hora al convertir — el buzón captura sin fricción, la hora se decide acá */}
+              <AnimatePresence>
+                {eligiendoHora === item.id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center gap-2 overflow-hidden rounded-[var(--radius-button)] bg-[var(--surface-2)] p-2.5"
+                  >
+                    <span className="pl-1.5 text-[13px] text-[var(--text-secondary)]">¿A qué hora?</span>
+                    <input
+                      type="time"
+                      value={horaElegida}
+                      onChange={(e) => setHoraElegida(e.target.value)}
+                      className="h-9 flex-1 rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface)] px-2 text-[14px] outline-none focus:border-[var(--accent)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => confirmarConversion(item.id)}
+                      aria-label="Confirmar hora y agregar a hoy"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] [touch-action:manipulation]"
+                    >
+                      <Check size={15} strokeWidth={3} />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </AnimatePresence>

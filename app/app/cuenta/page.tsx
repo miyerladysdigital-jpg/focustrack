@@ -6,16 +6,28 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CreditCard, Clock, Bell, LogOut, ChevronRight, ShieldCheck, XCircle } from 'lucide-react';
+import { CreditCard, Clock, Bell, LogOut, ChevronRight, ShieldCheck, XCircle, User, Check } from 'lucide-react';
 import { useAppState } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
 
 export default function CuentaPage() {
-  const { state, ready, cancelarSuscripcion } = useAppState();
+  const { state, ready, cancelarSuscripcion, updateUserName } = useAppState();
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false);
+  const [editandoNombre, setEditandoNombre] = useState(false);
+  const [nombreInput, setNombreInput] = useState('');
   if (!ready) return <ScreenSkeleton />;
 
   const trialRestante = 5 - state.trialDay;
+
+  const abrirEdicionNombre = () => {
+    setNombreInput(state.userName);
+    setEditandoNombre(true);
+  };
+
+  const guardarNombre = () => {
+    if (nombreInput.trim()) updateUserName(nombreInput);
+    setEditandoNombre(false);
+  };
 
   return (
     <div className="flex flex-col">
@@ -55,7 +67,35 @@ export default function CuentaPage() {
       </div>
 
       <div className="mt-6 flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--text-tertiary)_18%,transparent)] bg-[var(--surface)]">
-        <SettingRow icon={Bell} label="Recordatorio diario" value="8:00 a.m." />
+        {editandoNombre ? (
+          <div className="flex items-center gap-3 border-b border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)] px-4 py-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)]">
+              <User size={15} className="text-[var(--accent)]" />
+            </span>
+            <input
+              type="text"
+              autoFocus
+              value={nombreInput}
+              onChange={(e) => setNombreInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && guardarNombre()}
+              placeholder="Tu nombre"
+              className="h-9 flex-1 rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface-2)] px-3 text-[14px] outline-none focus:border-[var(--accent)]"
+            />
+            <button
+              type="button"
+              onClick={guardarNombre}
+              aria-label="Guardar nombre"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] [touch-action:manipulation]"
+            >
+              <Check size={15} strokeWidth={3} />
+            </button>
+          </div>
+        ) : (
+          <button type="button" onClick={abrirEdicionNombre} className="text-left [touch-action:manipulation]">
+            <SettingRow icon={User} label="Tu nombre" value={state.userName} chevron />
+          </button>
+        )}
+        <SettingRow icon={Bell} label="Recordatorio diario" value="Próximamente" />
         <SettingRow icon={CreditCard} label="Método de pago" value="Gestionado por Hotmart" />
         {!state.cancelado &&
           (confirmandoCancelar ? (

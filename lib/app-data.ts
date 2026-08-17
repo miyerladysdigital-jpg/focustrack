@@ -76,13 +76,17 @@ export function useAppState() {
   const [userId, setUserId] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
+    // getSession() lee la sesión guardada localmente (sin ida y vuelta al servidor) — proxy.ts
+    // ya protege /app/* del lado del servidor, así que acá basta confirmar que hay sesión
+    // localmente; un corte de red pasajero no debe expulsar a alguien que sí inició sesión.
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
       window.location.href = '/login';
       return;
     }
+    const user = session.user;
     setUserId(user.id);
 
     const hoy = todayKey();
@@ -271,6 +275,13 @@ export function useAppState() {
     await supabase.from('profiles').update({ cancelado: true }).eq('id', userId);
   };
 
+  const updateUserName = async (name: string) => {
+    if (!userId || !name.trim()) return;
+    const nombre = name.trim();
+    setState((prev) => ({ ...prev, userName: nombre }));
+    await supabase.from('profiles').update({ user_name: nombre }).eq('id', userId);
+  };
+
   const addInboxItem = async (text: string) => {
     if (!userId || !text.trim()) return;
     const { data, error } = await supabase
@@ -287,13 +298,15 @@ export function useAppState() {
     await supabase.from('inbox_items').delete().eq('id', id);
   };
 
-  const convertInboxToBlock = async (id: string) => {
+  const convertInboxToBlock = async (id: string, time?: string) => {
     if (!userId) return;
     const item = state.inbox.find((i) => i.id === id);
     if (!item) return;
     const hoy = todayKey();
-    const hour = Math.min(new Date().getHours() + 1, 21);
-    const time = `${String(hour).padStart(2, '0')}:00`;
+    if (!time) {
+      const hour = Math.min(new Date().getHours() + 1, 21);
+      time = `${String(hour).padStart(2, '0')}:00`;
+    }
     const { data, error } = await supabase
       .from('blocks')
       .insert({ user_id: userId, block_date: hoy, start_time: `${time}:00`, title: item.text, status: 'pending', energy_tag: 'media' })
@@ -324,6 +337,7 @@ export function useAppState() {
     undoMensaje,
     deshacerReprogramar,
     cancelarSuscripcion,
+    updateUserName,
     addInboxItem,
     removeInboxItem,
     convertInboxToBlock,
