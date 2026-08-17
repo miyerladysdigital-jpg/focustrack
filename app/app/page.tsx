@@ -9,8 +9,13 @@ import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle } from 'lucide-react';
 import type { Block } from '@/lib/app-data';
-import { useAppState, formatTodayLabel } from '@/lib/app-data';
+import { useAppState, useTimeFormat, formatHora, formatTodayLabel } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
+
+function proximaHora(): string {
+  const hour = Math.min(new Date().getHours() + 1, 21);
+  return `${String(hour).padStart(2, '0')}:00`;
+}
 
 function useCountUp(target: number, reduce: boolean) {
   const [value, setValue] = useState(reduce ? target : 0);
@@ -48,7 +53,22 @@ export default function HoyPage() {
     undoMensaje,
     deshacerReprogramar,
   } = useAppState();
+  const { formato } = useTimeFormat();
   const reduce = useReducedMotion();
+  // Elegir la hora al reprogramar UN bloque — el mismo patrón que en el buzón: no se asigna
+  // sola, la decide la persona.
+  const [eligiendoHora, setEligiendoHora] = useState<string | null>(null);
+  const [horaElegida, setHoraElegida] = useState(proximaHora());
+
+  const abrirSelectorHora = (id: string) => {
+    setHoraElegida(proximaHora());
+    setEligiendoHora(id);
+  };
+
+  const confirmarReprogramar = (id: string) => {
+    reprogramarUno(id, horaElegida);
+    setEligiendoHora(null);
+  };
 
   const pendingCount = todayBlocks.filter((b) => b.status === 'pending').length;
   const doneCount = todayBlocks.filter((b) => b.status === 'done').length;
@@ -71,8 +91,8 @@ export default function HoyPage() {
     });
     const topEnergia = (Object.entries(conteo) as [Block['energyTag'], number][]).sort((a, b) => b[1] - a[1])[0][0];
     const primero = hechos.reduce((min, b) => (b.time < min.time ? b : min));
-    return `Ya completaste ${hechos.length} bloque${hechos.length > 1 ? 's' : ''} hoy — el de las ${primero.time} fue ${ENERGIA_LABEL[topEnergia]}.`;
-  }, [todayBlocks, state.streakDays]);
+    return `Ya completaste ${hechos.length} bloque${hechos.length > 1 ? 's' : ''} hoy — el de las ${formatHora(primero.time, formato)} fue ${ENERGIA_LABEL[topEnergia]}.`;
+  }, [todayBlocks, state.streakDays, formato]);
 
   if (!ready) return <ScreenSkeleton variant="hoy" />;
 
@@ -172,7 +192,7 @@ export default function HoyPage() {
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: reduce ? 0 : i * 0.05, duration: reduce ? 0.15 : 0.3 }}
-            className={`flex items-center gap-3 rounded-[var(--radius-card)] border p-4 ${
+            className={`flex flex-col gap-3 rounded-[var(--radius-card)] border p-4 ${
               b.status === 'done'
                 ? 'border-[color-mix(in_oklab,var(--text-tertiary)_15%,transparent)] bg-[var(--surface)] opacity-60'
                 : b.status === 'rescheduled'
@@ -180,39 +200,70 @@ export default function HoyPage() {
                   : 'border-[color-mix(in_oklab,var(--accent)_40%,transparent)] bg-[color-mix(in_oklab,var(--accent)_17%,transparent)]'
             }`}
           >
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.9 }}
-              onClick={() => markDone(b.id)}
-              aria-label={b.status === 'done' ? 'Marcar como pendiente' : 'Marcar como hecho'}
-              className="flex h-11 w-11 shrink-0 items-center justify-center [touch-action:manipulation]"
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                  b.status === 'done' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--bg)]' : 'border-[var(--text-tertiary)]'
-                }`}
-              >
-                {b.status === 'done' && <Check size={16} strokeWidth={3} />}
-              </span>
-            </motion.button>
-            <div className="min-w-0 flex-1">
-              <p className={`line-clamp-2 text-[15px] font-medium leading-snug ${b.status === 'done' ? 'line-through' : ''}`}>{b.title}</p>
-              <p className="text-[12px] text-[var(--text-secondary)]">
-                {b.time} {b.status === 'rescheduled' && '· reprogramado'}
-              </p>
-            </div>
-            {/* Control granular: reprogramar SOLO este bloque, sin mover el resto del día */}
-            {b.status === 'pending' && (
+            <div className="flex items-center gap-3">
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.9 }}
-                onClick={() => reprogramarUno(b.id)}
-                aria-label="Reprogramar solo este bloque"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] [touch-action:manipulation]"
+                onClick={() => markDone(b.id)}
+                aria-label={b.status === 'done' ? 'Marcar como pendiente' : 'Marcar como hecho'}
+                className="flex h-11 w-11 shrink-0 items-center justify-center [touch-action:manipulation]"
               >
-                <RefreshCw size={15} />
+                <span
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                    b.status === 'done' ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--bg)]' : 'border-[var(--text-tertiary)]'
+                  }`}
+                >
+                  {b.status === 'done' && <Check size={16} strokeWidth={3} />}
+                </span>
               </motion.button>
-            )}
+              <div className="min-w-0 flex-1">
+                <p className={`line-clamp-2 text-[15px] font-medium leading-snug ${b.status === 'done' ? 'line-through' : ''}`}>{b.title}</p>
+                <p className="text-[12px] text-[var(--text-secondary)]">
+                  {formatHora(b.time, formato)} {b.status === 'rescheduled' && '· reprogramado'}
+                </p>
+              </div>
+              {/* Control granular: reprogramar SOLO este bloque, sin mover el resto del día */}
+              {b.status === 'pending' && (
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => (eligiendoHora === b.id ? setEligiendoHora(null) : abrirSelectorHora(b.id))}
+                  aria-label="Reprogramar solo este bloque"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] text-[var(--accent)] [touch-action:manipulation]"
+                >
+                  <RefreshCw size={15} />
+                </motion.button>
+              )}
+            </div>
+
+            {/* Elegir la hora antes de reprogramar — no se asigna sola */}
+            <AnimatePresence>
+              {eligiendoHora === b.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2 overflow-hidden rounded-[var(--radius-button)] bg-[var(--surface-2)] p-2.5"
+                >
+                  <span className="pl-1.5 text-[13px] text-[var(--text-secondary)]">¿A qué hora?</span>
+                  <input
+                    type="time"
+                    value={horaElegida}
+                    onChange={(e) => setHoraElegida(e.target.value)}
+                    className="h-9 flex-1 rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface)] px-2 text-[14px] outline-none focus:border-[var(--accent)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => confirmarReprogramar(b.id)}
+                    aria-label="Confirmar nueva hora"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] [touch-action:manipulation]"
+                  >
+                    <Check size={15} strokeWidth={3} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         ))}
       </div>

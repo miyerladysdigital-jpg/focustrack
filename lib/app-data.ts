@@ -55,6 +55,36 @@ function dateKey(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+export type FormatoHora = '12' | '24';
+const KEY_FORMATO_HORA = 'focustrack_formato_hora';
+
+/** Convierte "HH:MM" (24h, como se guarda) al formato de lectura elegido por el usuario. */
+export function formatHora(time: string, formato: FormatoHora): string {
+  if (formato === '24') return time;
+  const [h, m] = time.split(':').map(Number);
+  const periodo = h < 12 ? 'a.m.' : 'p.m.';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${periodo}`;
+}
+
+// Preferencia de formato de hora — por dispositivo (localStorage), no requiere cuenta ni
+// tabla nueva: es una preferencia de lectura, no un dato del negocio.
+export function useTimeFormat() {
+  const [formato, setFormatoState] = useState<FormatoHora>('12');
+
+  useEffect(() => {
+    const guardado = window.localStorage.getItem(KEY_FORMATO_HORA);
+    if (guardado === '12' || guardado === '24') setFormatoState(guardado);
+  }, []);
+
+  const setFormato = (nuevo: FormatoHora) => {
+    setFormatoState(nuevo);
+    window.localStorage.setItem(KEY_FORMATO_HORA, nuevo);
+  };
+
+  return { formato, setFormato };
+}
+
 function emptyState(): AppState {
   return {
     userName: 'Tú',
@@ -239,12 +269,14 @@ export function useAppState() {
   // Reprograma UN solo bloque (a diferencia de reprogramarSinCulpa, que mueve todos los
   // pendientes) — control granular: el usuario no tiene por qué mover todo su día por un
   // solo imprevisto.
-  const reprogramarUno = async (id: string) => {
+  const reprogramarUno = async (id: string, time?: string) => {
     if (!userId) return;
     const hoy = todayKey();
     const before = state.blocksByDate[hoy] ?? [];
-    const hour = Math.min(new Date().getHours() + 1, 21);
-    const time = `${String(hour).padStart(2, '0')}:00`;
+    if (!time) {
+      const hour = Math.min(new Date().getHours() + 1, 21);
+      time = `${String(hour).padStart(2, '0')}:00`;
+    }
     const updated = before.map((b) =>
       b.id === id && b.status === 'pending' ? { ...b, status: 'rescheduled' as BlockStatus, time } : b
     );

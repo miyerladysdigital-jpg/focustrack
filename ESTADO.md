@@ -24,30 +24,61 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
 - Next.js 16 renombró `middleware.ts` a `proxy.ts` (mismo mecanismo, archivo/función con otro
   nombre) — `proxy.ts` ya está creado y protege `/app/*`: sin sesión activa, redirige a `/login`
   (verificado en el navegador).
-- **Login real conectado**: `app/login/page.tsx` ya llama a Supabase Auth de verdad (enlace mágico
-  por correo, sin contraseña) en vez de simularlo. `app/auth/confirm/route.ts` recibe el enlace y
-  abre la sesión en el servidor. Probado en el navegador con una cuenta real: el correo se envió
-  sin errores.
-  ⚠️ **Pendiente — paso manual tuyo en el panel de Supabase** (esto no se puede hacer por código):
-  entra a tu proyecto → Authentication → Email Templates → "Magic Link", y cambia el link del
-  correo a: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/app`.
-  Sin este cambio, el enlace del correo no va a abrir la sesión correctamente.
-- **Las 4 pantallas internas (Hoy/Buzón/Semana/Cuenta) ya leen y guardan en la base de datos
-  real** — `lib/app-data.ts` se reescribió manteniendo la misma forma que usaban las pantallas
-  (cero cambios en `app/app/page.tsx`, `buzon`, `semana`, `cuenta`), pero ahora cada acción
-  (marcar hecho, reprogramar, agregar al buzón, cancelar) escribe en Supabase en vez de en este
-  navegador. La racha ahora sube una vez por día real de uso (loop de retención activo).
-  `tsc`/`build` verificados sin errores.
+- **Login real conectado y VERIFICADO de punta a punta**: `app/login/page.tsx` llama a Supabase
+  Auth de verdad (enlace mágico por correo, sin contraseña). `app/auth/confirm/route.ts` recibe el
+  enlace y abre la sesión en el servidor. `Authentication → Email Templates → Magic Link` en
+  Supabase ya quedó con el link correcto (`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}
+  &type=email&next=/app` — el usuario tuvo un error de llaves `{{ }}` duplicadas la primera vez,
+  corregido). El usuario confirmó que el enlace del correo ya lo mete directo a la app.
 - **Resend conectado** como SMTP personalizado de Supabase (remitente temporal `onboarding@resend.dev`
-  hasta que exista el dominio real) — confirmado por el propio Supabase: el límite de correos por
-  hora subió de 2 (servicio interno) a 30 automáticamente al guardar el SMTP externo.
-  ⚠️ **Pendiente — el usuario aún no termina el paso de la plantilla**: el correo de enlace mágico
-  ya llega, pero sigue usando el link genérico de Supabase (`{{ .ConfirmationURL }}`, no reemplazado
-  todavía) — el usuario confirmó que el correo "solo confirma y ya", no lo mete a la app. Falta que
-  guarde el cambio de texto en Authentication → Email Templates → Magic Link (reemplazar por
-  `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/app`) — instrucciones
-  ya repetidas, esperando que el usuario confirme que lo guardó para volver a probar.
-- Siguiente: una vez cerrado el login real, Vercel (MCP ya conectado), webhook de Hotmart y dominio.
+  hasta que exista el dominio real) — confirmado por Supabase: el límite de correos por hora subió
+  de 2 (servicio interno) a 30 automáticamente al guardar el SMTP externo.
+- **Vercel conectado** (P2 del protocolo de publicación): el usuario importó el repo GitHub desde
+  el panel de Vercel (la herramienta MCP de Vercel estuvo caída con error 503 durante la sesión,
+  así que se hizo por el dashboard). Producción: **https://focustrack-self.vercel.app** — verificado
+  con `curl`: sirve 200 en `/` y redirige 307 `/app → /login` sin sesión (proxy.ts funcionando en
+  producción). `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` configuradas en
+  Vercel. Supabase `Authentication → URL Configuration → Site URL` actualizado a la URL de Vercel
+  (antes apuntaba a localhost). Un segundo push (commit `90ebbf9`) confirmó que el auto-deploy
+  Git→Vercel funciona (P5/P8 del protocolo) — no se verificó SHA exacto por API (MCP de Vercel
+  caído), pero el flujo push→deploy automático quedó demostrado dos veces.
+  ⚠️ Pendiente del protocolo `62-PUBLICACION-SEGURA-Y-CONTINUA.md` que NO se completó formalmente
+  por la caída del MCP de Vercel: `PUBLICATION-CERTIFICATE.md`, `RELEASE-MANIFEST.json`, y
+  comparación exacta de SHA local vs. desplegado. Retomar cuando el MCP de Vercel vuelva.
+- **Las 4 pantallas internas (Hoy/Buzón/Semana/Cuenta) leen y guardan en Supabase real** —
+  `lib/app-data.ts` reescrito manteniendo la misma forma que usaban las pantallas. La racha sube
+  una vez por día real de uso (loop de retención activo).
+- **Bugs reales encontrados por el usuario probando la app ya en producción, corregidos
+  (commit `90ebbf9`)**:
+  1. La app expulsaba a la sesión al navegar — causa: `lib/app-data.ts` revalidaba la sesión contra
+     el servidor de Supabase (`getUser()`) en cada pantalla; un corte de red pasajero bastaba para
+     expulsar a alguien con sesión válida. Cambiado a `getSession()` (lectura local) — `proxy.ts` ya
+     protege `/app/*` del lado servidor, esta era una segunda capa redundante que fallaba en falso.
+  2. Buzón: convertir un pensamiento en bloque asignaba la hora sola (próxima hora libre) sin dejar
+     elegirla → ahora se abre un selector de hora antes de confirmar.
+  3. Cuenta: el nombre de usuario era fijo ("Tú") → ahora es editable, guarda en `profiles.user_name`.
+- **Pendiente, explícitamente diferido por decisión del usuario**: el "Recordatorio diario" de
+  Cuenta es solo texto (sin sistema de notificaciones real detrás — requiere infraestructura nueva,
+  push o email programado). Ahora dice "Próximamente" en vez de una hora falsa (antes decía
+  "8:00 a.m." sin que nadie la hubiera configurado). Retomar en una sesión dedicada a notificaciones.
+- Preguntado y sin responder aún: cuáles otros botones de la sección de Cuenta el usuario considera
+  "decorativos" además del recordatorio (dijo "suscribirse, recordatorio y demás" pero no listó cuáles).
+- **Segunda ronda de bugs/pedidos reales de uso (2026-08-17), corregidos**:
+  1. El botón individual de reprogramar un bloque (Hoy) también asignaba la hora sola → mismo
+     patrón que el buzón: ahora abre un selector de hora antes de confirmar. El botón grande
+     "Reprogramar sin culpa" (mueve TODAS las pendientes de un toque) se dejó intacto a propósito
+     — su función es justamente no pedir decisiones.
+  2. Las horas se mostraban en formato 24h ("hora militar", queja del usuario) sin poder cambiarlo →
+     agregado `formatHora()` + `useTimeFormat()` en `lib/app-data.ts` (preferencia por dispositivo,
+     `localStorage`, default 12h) y un interruptor 12h/24h en Cuenta. El `<input type="time">` de
+     los selectores sigue el formato del navegador/SO (no se puede forzar vía JS).
+  3. Semana: se agregó un mensaje de cierre cálido y específico (3 niveles según cuánto se sostuvo
+     el plan esa semana) que valida la capacidad real de la persona con TDAH — nunca positividad
+     falsa si los datos son bajos. Pedido explícito del usuario.
+  - Reafirmado como diferido (mismo alcance que "Recordatorio diario"): alarmas/avisos por actividad
+    para saber cuándo cambiar de una tarea a otra — requiere notificaciones push reales, sesión aparte.
+- Siguiente: webhook de Hotmart, dominio propio, y cerrar el certificado de publicación cuando el
+  MCP de Vercel vuelva a funcionar.
 
 ### Pasada de pulido (2026-08-14, tras cerrar la revisión de calidad — 7ª ronda de revisor-visual)
 El usuario pidió una pasada de pulido antes de pasar a Sesión 6. Se corrigieron los defectos

@@ -6,12 +6,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CreditCard, Clock, Bell, LogOut, ChevronRight, ShieldCheck, XCircle, User, Check } from 'lucide-react';
-import { useAppState } from '@/lib/app-data';
+import { CreditCard, Clock, Bell, LogOut, ChevronRight, ShieldCheck, XCircle, User, Check, Clock4 } from 'lucide-react';
+import { useAppState, useTimeFormat } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
 
 export default function CuentaPage() {
   const { state, ready, cancelarSuscripcion, updateUserName } = useAppState();
+  const { formato, setFormato } = useTimeFormat();
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false);
   const [editandoNombre, setEditandoNombre] = useState(false);
   const [nombreInput, setNombreInput] = useState('');
@@ -95,6 +96,26 @@ export default function CuentaPage() {
             <SettingRow icon={User} label="Tu nombre" value={state.userName} chevron />
           </button>
         )}
+        <div className="flex items-center gap-3 border-b border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)] px-4 py-3.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)]">
+            <Clock4 size={15} className="text-[var(--accent)]" />
+          </span>
+          <span className="flex-1 text-[15px] text-[var(--text-primary)]">Formato de hora</span>
+          <div className="flex shrink-0 rounded-[var(--radius-button)] bg-[var(--surface-2)] p-0.5">
+            {(['12', '24'] as const).map((opcion) => (
+              <button
+                key={opcion}
+                type="button"
+                onClick={() => setFormato(opcion)}
+                className={`h-8 rounded-[calc(var(--radius-button)-2px)] px-3 text-[13px] font-semibold [touch-action:manipulation] ${
+                  formato === opcion ? 'bg-[var(--accent)] text-[var(--bg)]' : 'text-[var(--text-secondary)]'
+                }`}
+              >
+                {opcion === '12' ? '12h' : '24h'}
+              </button>
+            ))}
+          </div>
+        </div>
         <SettingRow icon={Bell} label="Recordatorio diario" value="Próximamente" />
         <SettingRow icon={CreditCard} label="Método de pago" value="Gestionado por Hotmart" />
         {!state.cancelado &&

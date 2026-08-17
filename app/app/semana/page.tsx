@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, ChevronRight, Flame, TrendingUp, CalendarX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flame, TrendingUp, CalendarX, Sparkles } from 'lucide-react';
 import { useAppState } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
 
@@ -51,6 +51,17 @@ export default function SemanaPage() {
   const activos = weekCompletion.filter((v) => v > 0).length;
   const promedio = weekCompletion.length ? Math.round(weekCompletion.reduce((a, b) => a + b, 0) / 7) : 0;
   const mejorIdx = weekCompletion.length ? weekCompletion.indexOf(Math.max(...weekCompletion)) : -1;
+
+  // Mensaje de cierre — valida la capacidad real de la persona con TDAH, calibrado con el dato
+  // real de la semana (nunca positividad falsa: 3 niveles según cuánto sostuvo el plan).
+  const mensajeCierre =
+    activos === 0
+      ? null
+      : activos >= 5 || promedio >= 60
+        ? 'Esta semana tu plan se sostuvo la mayoría de los días — eso no fue suerte, fue tu sistema funcionando. Con TDAH sí se puede sostener una semana organizada: la prueba está en lo que acabas de lograr.'
+        : activos >= 2
+          ? `No fue una semana perfecta, y no tiene que serlo. Organizaste ${activos} de 7 días — con TDAH, avanzar a tu ritmo también es sostener el sistema. Eso cuenta.`
+          : 'Apenas empezaste a organizar tu semana, y ese primer paso es el más difícil con TDAH. Ya lo diste — la próxima semana construye sobre esto.';
 
   return (
     <div className="flex flex-col">
@@ -125,6 +136,14 @@ export default function SemanaPage() {
               ahí es cuando tu plan sí se sostuvo de principio a fin.
             </p>
           </div>
+
+          {/* Cierre de semana — valida la capacidad real de la persona con TDAH (56) */}
+          {mensajeCierre && (
+            <div className="mt-3 flex items-start gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] bg-[var(--surface)] p-4">
+              <Sparkles size={18} className="mt-0.5 shrink-0 text-[var(--accent)]" />
+              <p className="text-[14px] leading-snug text-[var(--text-primary)]">{mensajeCierre}</p>
+            </div>
+          )}
         </>
       ) : (
         <div className="mt-6 flex flex-col items-center rounded-[var(--radius-card)] border border-dashed border-[color-mix(in_oklab,var(--text-tertiary)_30%,transparent)] px-6 py-10 text-center">
