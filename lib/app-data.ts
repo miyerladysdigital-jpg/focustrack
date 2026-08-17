@@ -241,24 +241,34 @@ export function useAppState() {
   // el mensaje debe distinguir cuál pasó, o miente sobre el alcance de la acción.
   const [undoMensaje, setUndoMensaje] = useState('');
 
-  const reprogramarSinCulpa = async () => {
-    if (!userId) return;
+  // Sugiere una hora por bloque pendiente (escalonadas, sin duplicarse aunque se acabe el día)
+  // — solo un punto de partida: el usuario las ajusta o excluye una por una antes de confirmar.
+  const sugerirHorariosPendientes = (): { id: string; time: string }[] => {
+    const hoy = todayKey();
+    const pending = (state.blocksByDate[hoy] ?? []).filter((b) => b.status === 'pending');
+    let hour = new Date().getHours() + 1;
+    return pending.map((b) => {
+      const time = `${String(Math.min(hour, 23)).padStart(2, '0')}:00`;
+      hour += 1;
+      return { id: b.id, time };
+    });
+  };
+
+  // Aplica la reprogramación SOLO a los bloques que quedaron en `cambios` (cada uno con su
+  // propia hora, elegida o ajustada por el usuario) — los que se excluyan del panel de revisión
+  // se quedan "pending", intactos.
+  const reprogramarSinCulpa = async (cambios: { id: string; time: string }[]) => {
+    if (!userId || cambios.length === 0) return;
     const hoy = todayKey();
     const before = state.blocksByDate[hoy] ?? [];
-    const pending = before.filter((b) => b.status === 'pending');
-    if (pending.length === 0) return;
-    let hour = new Date().getHours() + 1;
-    const cambios: { id: string; time: string }[] = [];
+    const porId = new Map(cambios.map((c) => [c.id, c.time]));
     const updated = before.map((b) => {
-      if (b.status !== 'pending') return b;
-      const time = `${String(Math.min(hour, 21)).padStart(2, '0')}:00`;
-      hour += 1;
-      cambios.push({ id: b.id, time });
-      return { ...b, status: 'rescheduled' as BlockStatus, time };
+      const time = porId.get(b.id);
+      return time ? { ...b, status: 'rescheduled' as BlockStatus, time } : b;
     });
     setState((prev) => ({ ...prev, blocksByDate: { ...prev.blocksByDate, [hoy]: updated } }));
     setUndoSnapshot(before);
-    setUndoMensaje('Reprogramaste tu día');
+    setUndoMensaje(cambios.length === 1 ? 'Reprogramaste ese bloque' : 'Reprogramaste tu día');
     setTimeout(() => setUndoSnapshot(null), 5000);
     await Promise.all(
       cambios.map((c) => supabase.from('blocks').update({ status: 'rescheduled', start_time: `${c.time}:00` }).eq('id', c.id))
@@ -363,6 +373,7 @@ export function useAppState() {
     dataError,
     todayBlocks,
     markDone,
+    sugerirHorariosPendientes,
     reprogramarSinCulpa,
     reprogramarUno,
     undoSnapshot,

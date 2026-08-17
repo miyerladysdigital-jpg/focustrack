@@ -65,9 +65,7 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
   "decorativos" además del recordatorio (dijo "suscribirse, recordatorio y demás" pero no listó cuáles).
 - **Segunda ronda de bugs/pedidos reales de uso (2026-08-17), corregidos**:
   1. El botón individual de reprogramar un bloque (Hoy) también asignaba la hora sola → mismo
-     patrón que el buzón: ahora abre un selector de hora antes de confirmar. El botón grande
-     "Reprogramar sin culpa" (mueve TODAS las pendientes de un toque) se dejó intacto a propósito
-     — su función es justamente no pedir decisiones.
+     patrón que el buzón: ahora abre un selector de hora antes de confirmar.
   2. Las horas se mostraban en formato 24h ("hora militar", queja del usuario) sin poder cambiarlo →
      agregado `formatHora()` + `useTimeFormat()` en `lib/app-data.ts` (preferencia por dispositivo,
      `localStorage`, default 12h) y un interruptor 12h/24h en Cuenta. El `<input type="time">` de
@@ -75,6 +73,22 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
   3. Semana: se agregó un mensaje de cierre cálido y específico (3 niveles según cuánto se sostuvo
      el plan esa semana) que valida la capacidad real de la persona con TDAH — nunca positividad
      falsa si los datos son bajos. Pedido explícito del usuario.
+- **Tercera ronda (2026-08-17)** — el usuario probó "Reprogramar sin culpa" (el botón grande que
+  mueve TODAS las pendientes de un toque) y reportó dos problemas reales:
+  1. **Bug real**: varios bloques quedaban con la misma hora. Causa: el cálculo topaba cada hora
+     en `Math.min(hour, 21)` — si ya eran las 20-21h, todos los bloques siguientes colapsaban en
+     "21:00" idéntico. Corregido: tope subido a 23 y, más importante, el punto 2 hace que esto ya
+     no importe (el usuario ve y ajusta cada hora antes de confirmar).
+  2. **Corrección de diseño**: la decisión anterior de dejar el botón grande "sin decisiones" (ver
+     nota de la ronda 2, arriba) resultó equivocada — el usuario pidió explícitamente poder excluir
+     cualquier tarea del lote y darle su propia hora ("quitar cualquier tarea pendiente y volverla a
+     subir en el horario que la persona disponga"). Rediseñado: `reprogramarSinCulpa()` en
+     `lib/app-data.ts` ya no aplica sola — ahora recibe la lista de `{id, time}` que el usuario
+     aprobó. El botón abre un panel de revisión (`sugerirHorariosPendientes()` da horas sugeridas
+     escalonadas) donde cada bloque pendiente tiene su hora editable y un botón para sacarlo del
+     lote (queda "pending", intacto) antes de confirmar. Verificado con `tsc`/`build`, sin relanzar
+     revisor-visual (es una extensión del patrón ya usado en buzón/reprogramar-uno, no un patrón
+     nuevo) — pendiente de que el usuario lo pruebe en producción.
   - Reafirmado como diferido (mismo alcance que "Recordatorio diario"): alarmas/avisos por actividad
     para saber cuándo cambiar de una tarea a otra — requiere notificaciones push reales, sesión aparte.
 - Siguiente: webhook de Hotmart, dominio propio, y cerrar el certificado de publicación cuando el

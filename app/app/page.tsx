@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Flame, Check, Undo2, CalendarPlus, AlertTriangle, X } from 'lucide-react';
 import type { Block } from '@/lib/app-data';
 import { useAppState, useTimeFormat, formatHora, formatTodayLabel } from '@/lib/app-data';
 import { ScreenSkeleton } from '@/components/app/ScreenSkeleton';
@@ -47,6 +47,7 @@ export default function HoyPage() {
     dataError,
     todayBlocks,
     markDone,
+    sugerirHorariosPendientes,
     reprogramarSinCulpa,
     reprogramarUno,
     undoSnapshot,
@@ -68,6 +69,29 @@ export default function HoyPage() {
   const confirmarReprogramar = (id: string) => {
     reprogramarUno(id, horaElegida);
     setEligiendoHora(null);
+  };
+
+  // Revisión antes de "Reprogramar sin culpa": cada bloque pendiente con su propia hora
+  // editable y la opción de excluirlo — nunca se asigna todo a la misma hora en silencio.
+  type ItemLote = { id: string; title: string; time: string; incluido: boolean };
+  const [lote, setLote] = useState<ItemLote[] | null>(null);
+
+  const abrirRevisionLote = () => {
+    const sugeridos = sugerirHorariosPendientes();
+    setLote(
+      sugeridos.map((s) => ({
+        id: s.id,
+        title: todayBlocks.find((b) => b.id === s.id)?.title ?? '',
+        time: s.time,
+        incluido: true,
+      }))
+    );
+  };
+
+  const confirmarLote = () => {
+    if (!lote) return;
+    reprogramarSinCulpa(lote.filter((i) => i.incluido).map((i) => ({ id: i.id, time: i.time })));
+    setLote(null);
   };
 
   const pendingCount = todayBlocks.filter((b) => b.status === 'pending').length;
@@ -270,11 +294,11 @@ export default function HoyPage() {
       )}
 
       {/* (2) Acción de 1 tap — el mecanismo, contextual: solo si hay pendientes */}
-      {pendingCount > 0 && (
+      {pendingCount > 0 && !lote && (
         <motion.button
           type="button"
           whileTap={{ scale: 0.97 }}
-          onClick={reprogramarSinCulpa}
+          onClick={abrirRevisionLote}
           className="mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-[var(--radius-button)] bg-[var(--accent)] text-[15px] font-semibold text-[var(--bg)] [touch-action:manipulation]"
           style={{ height: 52 }}
         >
@@ -282,6 +306,68 @@ export default function HoyPage() {
           Reprogramar sin culpa
         </motion.button>
       )}
+
+      {/* Panel de revisión: cada bloque con su propia hora, o fuera del lote si no toca hoy */}
+      <AnimatePresence>
+        {lote && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2 }}
+            className="mt-6 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--accent)_30%,transparent)] bg-[var(--surface)] p-4"
+          >
+            <p className="text-[14px] font-semibold text-[var(--text-primary)]">Ajusta la hora de cada una</p>
+            <p className="mt-1 text-[13px] leading-snug text-[var(--text-secondary)]">
+              O quítala del grupo si todavía no le toca hoy.
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              {lote.map((item) => (
+                <div
+                  key={item.id}
+                  className={`flex items-center gap-2 rounded-[var(--radius-button)] bg-[var(--surface-2)] p-2.5 ${!item.incluido ? 'opacity-40' : ''}`}
+                >
+                  <p className="min-w-0 flex-1 truncate text-[13px] text-[var(--text-primary)]">{item.title}</p>
+                  <input
+                    type="time"
+                    value={item.time}
+                    disabled={!item.incluido}
+                    onChange={(e) =>
+                      setLote((prev) => prev!.map((i) => (i.id === item.id ? { ...i, time: e.target.value } : i)))
+                    }
+                    className="h-9 w-[110px] shrink-0 rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface)] px-2 text-[13px] outline-none focus:border-[var(--accent)] disabled:opacity-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setLote((prev) => prev!.map((i) => (i.id === item.id ? { ...i, incluido: !i.incluido } : i)))}
+                    aria-label={item.incluido ? 'Quitar del grupo' : 'Volver a incluir'}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--text-tertiary)] [touch-action:manipulation]"
+                  >
+                    {item.incluido ? <X size={15} /> : <Check size={15} />}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setLote(null)}
+                className="h-11 flex-1 rounded-[var(--radius-button)] border border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] text-[14px] font-medium text-[var(--text-secondary)] [touch-action:manipulation]"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmarLote}
+                disabled={!lote.some((i) => i.incluido)}
+                className="h-11 flex-1 rounded-[var(--radius-button)] bg-[var(--accent)] text-[14px] font-semibold text-[var(--bg)] disabled:opacity-40 [touch-action:manipulation]"
+              >
+                Confirmar
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Deshacer — la reprogramación no deja al usuario sin salida (32, enriquecimiento #2) */}
       <AnimatePresence>
