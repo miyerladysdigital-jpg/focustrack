@@ -86,9 +86,14 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
      `lib/app-data.ts` ya no aplica sola — ahora recibe la lista de `{id, time}` que el usuario
      aprobó. El botón abre un panel de revisión (`sugerirHorariosPendientes()` da horas sugeridas
      escalonadas) donde cada bloque pendiente tiene su hora editable y un botón para sacarlo del
-     lote (queda "pending", intacto) antes de confirmar. Verificado con `tsc`/`build`, sin relanzar
-     revisor-visual (es una extensión del patrón ya usado en buzón/reprogramar-uno, no un patrón
-     nuevo) — pendiente de que el usuario lo pruebe en producción.
+     lote (queda "pending", intacto) antes de confirmar. **Confirmado por el usuario en
+     producción: "ya quedó".**
+  3. **Eliminar actividades**: no existía forma de borrar un bloque ya creado ("las tareas que
+     agrego se quedan ahí sí o sí"). Agregado `eliminarBloque()` en `lib/app-data.ts` (reversible
+     5s con "Deshacer", mismo patrón que reprogramar) y el ícono de basura en cada bloque de Hoy.
+     `deshacerReprogramar()` se cambió de `update` a `upsert` porque un bloque eliminado ya no
+     existe en la base — un `update` no lo habría recreado al deshacer. Confirmado por el usuario
+     ("ahora si quedo").
   - Reafirmado como diferido (mismo alcance que "Recordatorio diario"): alarmas/avisos por actividad
     para saber cuándo cambiar de una tarea a otra — requiere notificaciones push reales, sesión aparte.
 - Siguiente: webhook de Hotmart, dominio propio, y cerrar el certificado de publicación cuando el
