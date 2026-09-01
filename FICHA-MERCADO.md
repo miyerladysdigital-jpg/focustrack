@@ -34,7 +34,12 @@
 - **Prueba elegida: 5 días · Garantía elegida: 7 días** (corregido 2026-08-15 — antes decía prueba 7/garantía 14, un valor no verificado; el usuario confirmó que el máximo real de Hotmart es 7 días de garantía, así que se bajó la prueba de 7 a 5 para preservar la regla dura)
 - Comprobación: garantía 7 > prueba 5 → **SÍ** — la garantía cubre el trial completo más 2 días adicionales tras el primer cobro real (día 5)
 - ¿Desde cuándo cuenta el plazo de garantía?: NO CONFIRMADO → el copy de la landing NO fija fecha de inicio ("7 días de garantía", sin decir "desde el cobro" ni "desde la adhesión" — cierto en ambos casos, regla de 18-VENTA-HOTMART.md)
-- ⚠️ **Pendiente (Sesión 6):** al conectar la cuenta real de Hotmart, verificar en el panel que 7 días de garantía y 5 de prueba son configurables tal cual. Si algún límite real difiere, ajustar manteniendo garantía > prueba antes de abrir tráfico.
+- ✅ **Verificado (2026-08-17), al configurar el producto real en Hotmart:** el panel de "Período de
+  prueba" del usuario solo ofrece la modalidad 100% GRATIS (sin cobro) — no existe la modalidad de
+  "cobro reducido"/test-drive que hubiera permitido el trial pagado de $0.99 planeado originalmente.
+  **Se cambió el modelo a trial 100% GRATIS de 5 días** en todo el copy de la app (landing, paywall,
+  términos). La regla dura garantía>prueba sigue cumpliéndose igual (7>5) — un trial gratis no cambia
+  esa comprobación, solo el monto que se cobra durante los primeros 5 días (ahora $0).
 
 ## 5. CONVERSIÓN ESPERABLE — para saber si un número es malo o normal
 - Conversión típica visita→registro del nicho: NO ENCONTRADO

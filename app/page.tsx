@@ -33,7 +33,7 @@ export default function LandingFocusTrack() {
         subtitleMarked="El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b]."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        socialProof={<span>Recién lanzamos: 5 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.</span>}
+        socialProof={<span>Recién lanzamos: 5 días de prueba gratis · cancela cuando quieras, sin letra chica.</span>}
         visual={<img src="/screenshots/hoy.png" alt="El timeline de hoy en FocusTrack, con el Botón de Reprogramación Sin Culpa" width={375} height={812} className="w-full" />}
       />
 
@@ -96,9 +96,8 @@ export default function LandingFocusTrack() {
 
       {/* 6. OFERTA */}
       <Oferta
-        tituloMarked="Prueba 5 días por $0.99. Sigue por [acento]$2.08/mes[/acento]"
+        tituloMarked="Prueba 5 días gratis. Sigue por [acento]$2.08/mes[/acento]"
         trialDias={5}
-        trialLabel="Prueba 5 días por $0.99"
         stack={{
           lineas: [
             { resultado: 'FocusTrack Pro (12 meses)', valor: '$47.88' },
@@ -114,7 +113,7 @@ export default function LandingFocusTrack() {
           totalAnual: 'Se cobra $24.99/año',
           ahorro: '6 meses gratis',
           descomposicionDia: 'menos de $0.07 al día',
-          ctaLabel: 'Empezar mi prueba de $0.99',
+          ctaLabel: 'Empezar mi prueba gratis',
           ctaHref: CTA_HREF,
           features: [
             'Timeline ilimitado',
@@ -186,7 +185,7 @@ export default function LandingFocusTrack() {
         futurePacingMarked="Mañana abres los ojos, ves tu día en bloques, y si algo se cae, lo arreglas en 1 toque — sin culpa, sin drama."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        recap="Garantía Cero Sorpresas · 5 días de prueba por $0.99"
+        recap="Garantía Cero Sorpresas · 5 días de prueba gratis"
         psMarked="PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 5 días de prueba."
       />
 

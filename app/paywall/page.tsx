@@ -85,7 +85,7 @@ export default function PaywallPage() {
             'linear-gradient(135deg, color-mix(in oklab, var(--accent) 40%, transparent), transparent 60%) border-box',
         }}
       >
-        <TimelineNodo activo titulo="Hoy — pagas $0.99" detalle="Acceso completo, sin límites." />
+        <TimelineNodo activo titulo="Hoy — empieza gratis" detalle="Acceso completo, sin límites." />
         <TimelineNodo titulo="Día 4 — te avisamos" detalle="Correo antes de que se active tu plan." />
         <TimelineNodo
           ultimo
@@ -129,7 +129,7 @@ export default function PaywallPage() {
           className="mt-3 flex h-13 w-full items-center justify-center rounded-[var(--radius-button)] bg-[var(--accent)] text-[16px] font-semibold text-[var(--bg)] shadow-[0_10px_28px_color-mix(in_oklab,var(--accent)_30%,transparent)] transition-opacity duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] disabled:opacity-40 [touch-action:manipulation]"
           style={{ height: 52 }}
         >
-          {abriendo ? 'Abriendo…' : 'Empezar mi prueba de $0.99'}
+          {abriendo ? 'Abriendo…' : 'Empezar mi prueba gratis'}
         </motion.button>
 
         {error && (
@@ -147,7 +147,7 @@ export default function PaywallPage() {
 
       <div className="mt-3 flex flex-col items-center gap-1">
         <p className="rounded-[var(--radius-card)] bg-[var(--surface-2)] px-4 py-2.5 text-center text-[13px] leading-snug text-[var(--text-secondary)]">
-          Hoy pagas $0.99 · te avisamos antes del cobro · cancela desde Cuenta en 2 toques, sin llamar a soporte
+          Hoy no pagas nada · te avisamos antes del cobro · cancela desde Cuenta en 2 toques, sin llamar a soporte
         </p>
       </div>
 

@@ -176,7 +176,7 @@ las trampas de suscripción."
 2. Buzón de pensamientos fugitivos (Inbox).
 3. Botón de "Reprogramación Sin Culpa" en 1 clic.
 4. Integración con calendario (diferida a fase de servicios externos).
-5. Paywall transparente con opción de prueba pagada.
+5. Paywall transparente con opción de prueba gratis.
 
 ### Qué NO construir todavía
 Mascotas/avatares/tiendas de gemas · analíticas complejas · funciones sociales/foros.
@@ -203,10 +203,13 @@ Next.js (App Router) + Supabase (DB/Auth/Storage) + Vercel + Hotmart + Resend. E
 ### Modelo de monetización (matriz A-F de 02C — DECIDIDO)
 - Nicho: Productividad/Organización con componente de Bienestar cognitivo (híbrido E+B).
 - **Modelo 2 — Onboarding + Paywall de prueba**, variante **Preview anónimo → paywall → login/auth**.
-- Trial: pagado, $0.99 USD por **5 días** (corregido 2026-08-15 — antes 7). Luego $3.99/mes o
-  $24.99/año (~$2.08/mes, anual preseleccionado). **Garantía: 7 días** (era 14, un valor no
-  verificado — el usuario confirmó que el máximo real de Hotmart es 7; se bajó la prueba de 7 a 5
-  para que la garantía siga cubriendo el primer cobro real, ver FICHA-MERCADO.md §4).
+- Trial: **100% gratis** por **5 días** (corregido 2026-08-17 — antes $0.99 pagado; al configurar
+  el producto real en Hotmart se descubrió que la cuenta solo ofrece período de prueba gratis, sin
+  la modalidad de "cobro reducido" que el plan original necesitaba; ver FICHA-MERCADO.md §4). Luego
+  $3.99/mes o $24.99/año (~$2.08/mes, anual preseleccionado). **Garantía: 7 días** (era 14, un valor
+  no verificado — el usuario confirmó que el máximo real de Hotmart es 7; se bajó la prueba de 7 a 5
+  para que la garantía siga cubriendo el primer cobro real — sigue cumpliéndose igual con trial
+  gratis: 7>5).
 - Mapa D1-D5 del trial: D1 = timeline usable el mismo día · D2-D3 = primer insight real · D4 =
   aviso pre-cobro honesto · D5 = 1er cobro / "ya eres Pro".
 

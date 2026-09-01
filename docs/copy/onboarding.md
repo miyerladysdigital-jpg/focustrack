@@ -34,8 +34,9 @@ nombrando **el Botón de Reprogramación Sin Culpa** (mecanismo bautizado, mismo
 - Headline: `Tu día ya tiene un plan para "[prioridad del usuario]"` (deseo tangible #1 de la ficha)
 - Visual: timeline Hoy / Día 4 (aviso) / Día 5 (cobro) — la verdad del puente (C4bis)
 - Planes: Anual $2.08/mes (recomendado) · Mensual $3.99/mes
-- CTA: `Empezar mi prueba de $0.99` — NUNCA "gratis" (el trial es pagado, hallazgo del
-  revisor-visual en la landing, aplicado aquí desde el inicio)
+- CTA: `Empezar mi prueba gratis` (corregido 2026-08-17: la modalidad de "cobro reducido" que
+  requería el trial pagado de $0.99 no está disponible en la cuenta de Hotmart del usuario — solo
+  ofrece período de prueba 100% gratis. Se cambió el modelo a trial gratis en todo el copy)
 - Trust row: Garantía Cero Sorpresas · 7 días · Hotmart (objeción de precio/estafa de la ficha) —
   prueba bajada de 7 a 5 días para que la garantía (máximo real de Hotmart: 7 días) siga cubriendo
   el primer cobro

@@ -48,7 +48,7 @@
 1. "Voy a gastar en otra app que voy a abandonar" → respuesta: primera victoria en <2 min + botón de reinicio sin culpa → vive en: onboarding + FAQ
 2. "Ya probé apps así y las abandono" → respuesta: se valida (no le pedimos 20 min diarios, solo 3 preguntas) → vive en: paywall + landing
 3. "Va a cobrarme algo oculto / va a ser imposible cancelar" → respuesta: aviso 3 días antes del cobro + cancelación en 1 clic, mostrado explícito → vive en: paywall + microcopy + FAQ
-4. "Es caro / no sé si lo voy a usar" → respuesta: precio descompuesto por día + trial de $0.99/7 días → vive en: paywall
+4. "Es caro / no sé si lo voy a usar" → respuesta: precio descompuesto por día + trial gratis de 5 días → vive en: paywall
 5. Pago/checkout (LATAM): "¿es seguro poner mi tarjeta?" → respuesta: "Pagas por Hotmart — tarjeta o método local. Nunca vemos tus datos y cancelas con un correo." → vive en: microcopy bajo el CTA + FAQ
 6. "Otra app con mascotas/gamificación infantil que no es para mí" (la del nicho) → respuesta: diseño adulto, minimalista, cero mascotas/gemas → vive en: landing (sección diferenciación) + FAQ
 

@@ -12,7 +12,7 @@ Modelo: 2 (onboarding-first, variante anónima) → CTA_HREF = `/onboarding`, CT
 - h1Marked: `Tu día colapsó. [acento]Reorganízalo en 1 toque[/acento], sin culpa.`
 - subtitleMarked: `El planificador visual para TDAH que reprograma imprevistos al instante, [b]sin cobros ocultos[/b].` (13 palabras, presupuesto 14)
 - ctaLabel: `Crear mi plan gratis`
-- socialProof: `Recién lanzamos: 5 días de prueba por $0.99 · cancela cuando quieras, sin letra chica.`
+- socialProof: `Recién lanzamos: 5 días de prueba gratis · cancela cuando quieras, sin letra chica.`
 - visualPlaceholderSugerencia: `captura del timeline de hoy con el Botón de Reprogramación Sin Culpa visible`
 
 ## 2. PROBLEMA
@@ -53,15 +53,17 @@ frames (screenshots REALES de /app, ya no placeholders — hallazgo del revisor-
 - `Tu plan, siempre claro` → /screenshots/cuenta.png
 
 ## 6. OFERTA
-tituloMarked: `Prueba 5 días por $0.99. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
-trialDias: 7
-trialLabel: `Prueba 5 días por $0.99` (el badge del kit dice por defecto "N días gratis" — nuestro trial es PAGADO, así que se sobrescribe explícitamente para no contradecir la promesa de "cero cobros ocultos". Hallazgo del revisor-visual, corregido.)
+tituloMarked: `Prueba 5 días gratis. Sigue por [acento]$2.08/mes[/acento]` (8 palabras, presupuesto 8)
+trialDias: 5
+trialLabel: (sin override — usa el default del kit "5 días gratis". Corregido 2026-08-17: la cuenta de
+Hotmart del usuario no ofrece la modalidad de "cobro reducido" que requería el trial pagado de $0.99,
+solo período de prueba 100% gratis — se cambió el modelo en todo el copy, ver ESTADO.md.)
 stack:
 - `FocusTrack Pro (12 meses)` → `$47.88`
 - `Reprogramación ilimitada + buzón sin límite` → `incluido`
 - totalTachado: `$47.88` · nota: `Hoy: $24.99/año (equivale a $2.08/mes)`
 anual: nombre `Anual` · badge `MÁS POPULAR` · precioMes `$2.08` · totalAnual `Se cobra $24.99/año` ·
-  ahorro `6 meses gratis` · descomposicionDia `menos de $0.07 al día` · ctaLabel `Empezar mi prueba de $0.99` (hallazgo del revisor-visual: el botón seguía diciendo "gratis" para un trial pagado, corregido)
+  ahorro `6 meses gratis` · descomposicionDia `menos de $0.07 al día` · ctaLabel `Empezar mi prueba gratis`
   features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Se sincroniza con tu calendario`
 mensual: nombre `Mensual` · precioMes `$3.99` · ctaLabel `Elegir mensual`
   features: `Timeline ilimitado` · `Botón de Reprogramación Sin Culpa` · `Buzón sin límite` · `Cancelas cuando quieras`
@@ -84,7 +86,7 @@ regla dura de 18-VENTA-HOTMART.md: la garantía debe durar más que la prueba)
 ## 9. CTA FINAL
 h2Marked: `Imagina tu día, [acento]ya resuelto[/acento]`
 futurePacingMarked: `Mañana abres los ojos, ves tu día en bloques, y si algo se cae, lo arreglas en 1 toque — sin culpa, sin drama.`
-recap: `Garantía Cero Sorpresas · 5 días de prueba por $0.99`
+recap: `Garantía Cero Sorpresas · 5 días de prueba gratis`
 psMarked: `PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 5 días de prueba.`
 
 ## 10. FOOTER LEGAL
