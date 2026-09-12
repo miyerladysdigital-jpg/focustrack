@@ -99,6 +99,70 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
 - Siguiente: webhook de Hotmart, dominio propio, y cerrar el certificado de publicación cuando el
   MCP de Vercel vuelva a funcionar.
 
+**Sesión 7 (2026-09-11/12) — Conectando el cobro real de Hotmart — EN CURSO**:
+- **Producto creado en Hotmart** (`FocusTrack`, ID 8431177, `Ventas activas` ON): planes Mensual
+  $3.99 y Anual $24.99 con período de prueba de 5 días GRÁTIS activado en ambos — verificado
+  abriendo el checkout real (no el panel) a 375px con tarjeta, PayPal y Efecty. ⚠️ Hallazgo real:
+  con Efecty (pago en efectivo) Hotmart QUITA la prueba gratis y cobra de inmediato (no puede
+  cobrar recurrente sin tarjeta) — aclarado en el paywall (ver abajo). Área de miembros con el
+  texto de acceso creada (requisito de aprobación de Hotmart).
+- **Candado de pago real implementado** (antes NO existía — cualquiera que iniciaba sesión entraba
+  a `/app` sin haber pagado ni empezado prueba): `proxy.ts` ahora revisa, antes de dejar entrar a
+  `/app/*`, si la cuenta tiene una fila en `subscriptions` con estado `trial/active/past_due`
+  (o `cancelled` con `current_period_end` aún vigente); si NO tiene fila (cuenta que nunca pasó
+  por Hotmart), cae al plazo de gracia de `profiles.trial_started_at` + 5 días. Sin ninguna de las
+  dos, redirige a `/paywall` (antes solo redirigía a `/login` si no había sesión).
+- **Webhook de Hotmart construido**: `app/api/webhooks/hotmart/route.ts` — verifica el hottok en
+  tiempo constante (`lib/hotmart-verify.ts`, ya existía, fail-secure), dedupe por `event_id`
+  (tabla `processed_events`), registra cada intento en `webhook_log`, aplica la máquina de estados
+  (`lib/membership-fsm.ts`, ya existía) vía la función atómica `apply_hotmart_event` (RPC en
+  Supabase, `security definer`, `EXECUTE` revocado a `anon`/`authenticated`/`public`). Adaptado al
+  esquema REAL de `profiles`/`subscriptions` (sin columna `email` — se resuelve contra
+  `auth.users` dentro del RPC), no al ejemplo genérico del manual. `SWITCH_PLAN` (upgrade/downgrade
+  mensual↔anual) mapeado aparte con `apply_hotmart_plan_change` (no toca el estado, solo el plan).
+  **Modelo 2A real**: si paga alguien sin cuenta todavía, el webhook la crea
+  (`auth.admin.createUser`) y dispara el mismo enlace mágico que ya usa `/login`
+  (`auth.signInWithOtp`) — se reutiliza la plantilla de correo de Supabase ya verificada en Sesión
+  6, NO se construyó un `lib/email.ts` con Resend a mano (decisión: menos superficie, reusa lo
+  verificado). Orden a prueba de "pagó y no le llegó nada": el RPC resuelve el usuario ANTES de
+  marcar el evento procesado — si no existe cuenta, NO se marca procesado, así que el reintento
+  (propio o de Hotmart) es seguro.
+- **Migraciones aplicadas** (proyecto Supabase `lsxgwtcsltrqtzesmawk`): tablas `processed_events` y
+  `webhook_log` (RLS activo, sin políticas — solo el service role las usa); `subscriptions.status`
+  ampliado para aceptar `refunded`/`chargeback` (antes solo tenía trial/active/past_due/cancelled/
+  expired — no distinguía reembolso de cancelación voluntaria); `subscriptions` con
+  `UNIQUE(user_id)` (una suscripción vigente por usuario en este MVP, upsert por usuario en vez de
+  por `transaction_id`, que cambia en cada cobro/renovación). Auditoría de seguridad post-cambio:
+  0 avisos nuevos (el único warning que había, function `security definer` ejecutable por
+  `anon`/`authenticated`, se corrigió revocando `EXECUTE` también de `PUBLIC`, no solo de esos
+  roles — Postgres concede `EXECUTE` a `PUBLIC` por defecto en funciones nuevas).
+- **Paywall actualizado**: el botón "Empezar mi prueba gratis" ya NO salta directo a `/login`
+  (dejaba entrar gratis a cualquiera sin pasar por Hotmart) — ahora lleva al checkout real de
+  Hotmart según el plan elegido (`NEXT_PUBLIC_HOTMART_CHECKOUT_MENSUAL` / `_ANUAL`, aún sin
+  configurar). Se agregó una aclaración bajo el CTA: "Los 5 días gratis aplican pagando con
+  tarjeta o PayPal. Pagando en efectivo (Efecty), el cobro se hace al momento" (pedida por el
+  usuario tras el hallazgo de Efecty).
+- `tsc`/`build` verificados en los 3 cambios (proxy, webhook, paywall) — build solo pasa con
+  `HOTMART_HOTTOK`/`SUPABASE_SECRET_KEY` presentes (fail-secure intencional; se usó un valor
+  temporal SOLO para la verificación local, nunca un secreto real).
+- ⚠️ **Pendiente para que esto funcione en producción** (acciones del usuario, no técnicas):
+  1. Copiar el HOTTOK real desde Hotmart (Herramientas → Webhook) a Vercel como `HOTMART_HOTTOK`.
+  2. Copiar la Secret Key de Supabase (Settings → API → Secret keys) a Vercel como
+     `SUPABASE_SECRET_KEY` (aún no estaba configurada — hasta ahora nada del lado servidor la
+     necesitaba).
+  3. Pasar los dos links de checkout (mensual Y anual) como `NEXT_PUBLIC_HOTMART_CHECKOUT_MENSUAL`
+     / `_ANUAL` en Vercel — solo se tiene el de mensual, falta el de anual.
+  4. Registrar el webhook en Hotmart apuntando a
+     `https://focustrack-self.vercel.app/api/webhooks/hotmart` con los eventos de compra
+     aprobada/completa/reembolso/chargeback/cancelación/cambio de plan/pago atrasado.
+  5. Probar de punta a punta con una compra de prueba real (mismo correo que usa para loguearse).
+- ⚠️ **No verificado todavía** (placeholder heredado del manual, hay que confirmarlo con un pago
+  de prueba real): el nombre exacto del evento de INICIO de trial (`TRIAL_START_EVENT` en
+  `lib/membership-fsm.ts`) y de qué campo del payload sale el plan (mensual/anual) — `resolvePlan()`
+  en el webhook tiene un comentario `(verificar)` con la mejor suposición. Sin este paso, el
+  webhook puede fallar en silencio para eventos con nombre distinto al esperado (aunque
+  `webhook_log` lo registraría como evento ignorado, no como error).
+
 ### Pasada de pulido (2026-08-14, tras cerrar la revisión de calidad — 7ª ronda de revisor-visual)
 El usuario pidió una pasada de pulido antes de pasar a Sesión 6. Se corrigieron los defectos
 documentados en "Problemas conocidos" (abajo) y se relanzó el revisor-visual una vez más:

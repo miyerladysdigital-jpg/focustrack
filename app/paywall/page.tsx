@@ -2,9 +2,9 @@
 
 // PAYWALL — FocusTrack. Blueprint: 50-DISENO-ONBOARDING-PAYWALL.md sección C (C1/C2/C4).
 // Visual del valor = TIMELINE del trial (C4, default con trial). Copy derivado de
-// FICHA-AVATAR.md vía docs/copy/onboarding.md. El botón de pago NO simula un cobro real
-// (C3ter): Hotmart se conecta en Sesión 6 — hoy el CTA lleva a /login, el siguiente paso
-// real del funnel (SECUENCIA-MAESTRA-CONSTRUCCION.md).
+// FICHA-AVATAR.md vía docs/copy/onboarding.md. El CTA lleva al checkout REAL de Hotmart
+// (Modelo 2A, docs/sistema/18-VENTA-HOTMART.md): el webhook crea la cuenta y manda el enlace
+// mágico — el login ocurre DESPUÉS de pagar, no antes.
 
 import { useState } from 'react';
 import { motion, type Variants } from 'motion/react';
@@ -30,18 +30,19 @@ export default function PaywallPage() {
     answers.prioridad && answers.prioridad.length > 30 ? `${answers.prioridad.slice(0, 30).trim()}…` : answers.prioridad;
   const meta = prioridadCorta ? `"${prioridadCorta}"` : null;
 
-  // Estado de error del CTA: hoy router.push casi nunca falla, pero este es el patrón que
-  // queda cableado ANTES de conectar el cobro real de Hotmart en Sesión 6 (si el checkout
-  // real falla, el usuario ve qué pasó + puede reintentar, nunca un botón mudo).
+  const checkoutUrl =
+    plan === 'anual'
+      ? process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_ANUAL
+      : process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_MENSUAL;
+
   const empezar = () => {
     setError(false);
-    setAbriendo(true);
-    try {
-      router.push('/login');
-    } catch {
-      setAbriendo(false);
-      setError(true);
+    if (!checkoutUrl) {
+      setError(true); // falta configurar el link de Hotmart — nunca fallar en silencio
+      return;
     }
+    setAbriendo(true);
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -148,6 +149,9 @@ export default function PaywallPage() {
       <div className="mt-3 flex flex-col items-center gap-1">
         <p className="rounded-[var(--radius-card)] bg-[var(--surface-2)] px-4 py-2.5 text-center text-[13px] leading-snug text-[var(--text-secondary)]">
           Hoy no pagas nada · te avisamos antes del cobro · cancela desde Cuenta en 2 toques, sin llamar a soporte
+        </p>
+        <p className="px-4 text-center text-[11px] leading-snug text-[var(--text-tertiary)]">
+          Los 5 días gratis aplican pagando con tarjeta o PayPal. Pagando en efectivo (Efecty), el cobro se hace al momento.
         </p>
       </div>
 
