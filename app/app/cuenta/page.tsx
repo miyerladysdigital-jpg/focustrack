@@ -19,6 +19,13 @@ export default function CuentaPage() {
   if (!ready) return <ScreenSkeleton />;
 
   const trialRestante = 5 - state.trialDay;
+  const nombrePlan = state.plan === 'anual' ? 'Anual' : state.plan === 'mensual' ? 'Mensual' : null;
+  const fechaProximoCobro = state.currentPeriodEnd
+    ? new Date(state.currentPeriodEnd).toLocaleDateString('es', { day: 'numeric', month: 'long' })
+    : null;
+  // Con fila real en `subscriptions` (el webhook de Hotmart la crea), esa es la fuente de verdad —
+  // el conteo "Día X de 5" solo aplica a cuentas que nunca pasaron por Hotmart (subscriptionStatus null).
+  const tieneSuscripcionReal = state.subscriptionStatus !== null;
 
   const abrirEdicionNombre = () => {
     setNombreInput(state.userName);
@@ -37,7 +44,63 @@ export default function CuentaPage() {
 
       {/* Estado de plan — nunca error técnico, siempre con valor (regla 16 de CLAUDE.md) */}
       <div className="mt-5 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--accent)_30%,transparent)] bg-[color-mix(in_oklab,var(--accent)_6%,transparent)] p-5">
-        {state.cancelado ? (
+        {tieneSuscripcionReal ? (
+          <>
+            <div className="flex items-center gap-2">
+              {state.subscriptionStatus === 'active' && <Check size={16} className="text-[var(--accent)]" />}
+              {state.subscriptionStatus === 'trial' && <Clock size={16} className="text-[var(--accent)]" />}
+              {state.subscriptionStatus === 'past_due' && <XCircle size={16} className="text-[var(--error)]" />}
+              {(state.subscriptionStatus === 'cancelled' ||
+                state.subscriptionStatus === 'expired' ||
+                state.subscriptionStatus === 'refunded' ||
+                state.subscriptionStatus === 'chargeback') && (
+                <XCircle size={16} className="text-[var(--text-secondary)]" />
+              )}
+              <p
+                className={`text-[13px] font-semibold ${
+                  state.subscriptionStatus === 'past_due' ? 'text-[var(--error)]' : 'text-[var(--accent)]'
+                }`}
+              >
+                {state.subscriptionStatus === 'active' && `Plan ${nombrePlan ?? ''} activo`}
+                {state.subscriptionStatus === 'trial' && 'Prueba activa'}
+                {state.subscriptionStatus === 'past_due' && 'Tu último pago no se procesó'}
+                {state.subscriptionStatus === 'cancelled' && 'Suscripción cancelada'}
+                {(state.subscriptionStatus === 'expired' ||
+                  state.subscriptionStatus === 'refunded' ||
+                  state.subscriptionStatus === 'chargeback') &&
+                  'Sin plan activo'}
+              </p>
+            </div>
+            <p className="mt-2 text-[14px] leading-snug text-[var(--text-primary)]">
+              {state.subscriptionStatus === 'active' &&
+                (fechaProximoCobro
+                  ? `Tu próximo cobro es el ${fechaProximoCobro}. Lo gestionas todo desde Hotmart.`
+                  : 'Tu plan está al día. Lo gestionas desde Hotmart.')}
+              {state.subscriptionStatus === 'trial' &&
+                (fechaProximoCobro
+                  ? `Tu primer cobro es el ${fechaProximoCobro} — te avisamos por correo 3 días antes.`
+                  : 'Acceso completo mientras dure tu prueba.')}
+              {state.subscriptionStatus === 'past_due' &&
+                'Tienes unos días de gracia con acceso completo — actualiza tu método de pago en Hotmart para que no se corte.'}
+              {state.subscriptionStatus === 'cancelled' &&
+                (fechaProximoCobro
+                  ? `Sigues con acceso completo hasta el ${fechaProximoCobro}. No se te cobrará después.`
+                  : 'No se te cobrará de nuevo.')}
+              {(state.subscriptionStatus === 'expired' ||
+                state.subscriptionStatus === 'refunded' ||
+                state.subscriptionStatus === 'chargeback') &&
+                'Puedes volver a suscribirte cuando quieras.'}
+            </p>
+            {state.subscriptionStatus !== 'active' && (
+              <Link
+                href="/paywall"
+                className="mt-3 inline-flex items-center gap-1 text-[14px] font-semibold text-[var(--accent)]"
+              >
+                Ver planes <ChevronRight size={14} />
+              </Link>
+            )}
+          </>
+        ) : state.cancelado ? (
           <>
             <div className="flex items-center gap-2">
               <XCircle size={16} className="text-[var(--text-secondary)]" />
@@ -119,29 +182,51 @@ export default function CuentaPage() {
         <SettingRow icon={Bell} label="Recordatorio diario" value="Próximamente" />
         <SettingRow icon={CreditCard} label="Método de pago" value="Gestionado por Hotmart" />
         {!state.cancelado &&
+          state.subscriptionStatus !== 'cancelled' &&
+          state.subscriptionStatus !== 'expired' &&
+          state.subscriptionStatus !== 'refunded' &&
+          state.subscriptionStatus !== 'chargeback' &&
           (confirmandoCancelar ? (
-            <div className="flex items-center gap-3 border-b border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)] px-4 py-3.5 last:border-0">
-              <span className="flex-1 text-[13px] text-[var(--text-secondary)]">
-                ¿Seguro? Mantienes tu acceso hasta el día 5, sin cobro después.
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  cancelarSuscripcion();
-                  setConfirmandoCancelar(false);
-                }}
-                className="shrink-0 text-[13px] font-semibold text-[var(--error)] [touch-action:manipulation]"
-              >
-                Sí, cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmandoCancelar(false)}
-                className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)] [touch-action:manipulation]"
-              >
-                No
-              </button>
-            </div>
+            tieneSuscripcionReal ? (
+              // Suscripción real de Hotmart: el cobro lo controla Hotmart, no esta app — nunca
+              // fingir un "sí, cancelar" que no detiene el cobro real (ver ESTADO.md pendiente).
+              <div className="flex flex-col gap-2 border-b border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)] px-4 py-3.5 last:border-0">
+                <span className="text-[13px] leading-snug text-[var(--text-secondary)]">
+                  Tu cobro lo gestiona Hotmart. Cancélalo desde el correo de tu compra o entrando a tu cuenta de
+                  Hotmart — apenas lo hagas, aquí se actualiza solo.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmandoCancelar(false)}
+                  className="self-start text-[13px] font-semibold text-[var(--accent)] [touch-action:manipulation]"
+                >
+                  Entendido
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 border-b border-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)] px-4 py-3.5 last:border-0">
+                <span className="flex-1 text-[13px] text-[var(--text-secondary)]">
+                  ¿Seguro? Mantienes tu acceso hasta el día 5, sin cobro después.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    cancelarSuscripcion();
+                    setConfirmandoCancelar(false);
+                  }}
+                  className="shrink-0 text-[13px] font-semibold text-[var(--error)] [touch-action:manipulation]"
+                >
+                  Sí, cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmandoCancelar(false)}
+                  className="shrink-0 text-[13px] font-medium text-[var(--text-secondary)] [touch-action:manipulation]"
+                >
+                  No
+                </button>
+              </div>
+            )
           ) : (
             <button
               type="button"

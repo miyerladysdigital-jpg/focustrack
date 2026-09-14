@@ -24,12 +24,18 @@ export interface InboxItem {
   createdAt: string; // ISO
 }
 
+export type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'refunded' | 'chargeback';
+
 export interface AppState {
   userName: string;
   streakDays: number;
-  trialDay: number; // 1-5
+  trialDay: number; // 1-5 — solo aplica cuando NO hay suscripción real (subscriptionStatus === null)
   plan: 'trial' | 'anual' | 'mensual';
   cancelado: boolean;
+  /** Estado real en `subscriptions` (lo escribe el webhook de Hotmart). `null` = la cuenta
+   * nunca pasó por Hotmart todavía — se rige por el trial de 5 días de `trial_started_at`. */
+  subscriptionStatus: SubscriptionStatus | null;
+  currentPeriodEnd: string | null; // ISO — fecha del próximo cobro / hasta cuándo dura el acceso si canceló
   blocksByDate: Record<string, Block[]>; // key: 'YYYY-MM-DD'
   inbox: InboxItem[];
   weekCompletion: number[]; // 7 valores 0-100, lunes→domingo
@@ -92,6 +98,8 @@ function emptyState(): AppState {
     trialDay: 1,
     plan: 'trial',
     cancelado: false,
+    subscriptionStatus: null,
+    currentPeriodEnd: null,
     blocksByDate: {},
     inbox: [],
     weekCompletion: [0, 0, 0, 0, 0, 0, 0],
@@ -124,7 +132,7 @@ export function useAppState() {
     const domingo = new Date(lunes);
     domingo.setDate(domingo.getDate() + 6);
 
-    const [perfilRes, progresoRes, bloquesHoyRes, bloquesSemanaRes, buzonRes] = await Promise.all([
+    const [perfilRes, progresoRes, bloquesHoyRes, bloquesSemanaRes, buzonRes, suscripcionRes] = await Promise.all([
       supabase.from('profiles').select('user_name, plan, cancelado, trial_started_at').eq('id', user.id).single(),
       supabase.from('user_progress').select('streak_days, last_active_date').eq('user_id', user.id).single(),
       supabase
@@ -145,9 +153,10 @@ export function useAppState() {
         .eq('user_id', user.id)
         .is('converted_to_block_id', null)
         .order('created_at', { ascending: false }),
+      supabase.from('subscriptions').select('status, current_period_end').eq('user_id', user.id).maybeSingle(),
     ]);
 
-    if (perfilRes.error || progresoRes.error || bloquesHoyRes.error || bloquesSemanaRes.error || buzonRes.error) {
+    if (perfilRes.error || progresoRes.error || bloquesHoyRes.error || bloquesSemanaRes.error || buzonRes.error || suscripcionRes.error) {
       setDataError(true);
       setReady(true);
       return;
@@ -186,6 +195,8 @@ export function useAppState() {
       trialDay,
       plan: (perfilRes.data?.plan as AppState['plan']) ?? 'trial',
       cancelado: perfilRes.data?.cancelado ?? false,
+      subscriptionStatus: (suscripcionRes.data?.status as SubscriptionStatus) ?? null,
+      currentPeriodEnd: suscripcionRes.data?.current_period_end ?? null,
       blocksByDate: { [hoy]: bloquesHoy },
       inbox: (buzonRes.data ?? []).map((i) => ({ id: i.id, text: i.content, createdAt: i.created_at })),
       weekCompletion,
