@@ -23,10 +23,14 @@ export default function LoginPage() {
   const [estado, setEstado] = useState<EstadoEnvio>('idle');
   const [cooldown, setCooldown] = useState(0);
 
+  const [recienComprado, setRecienComprado] = useState(false);
+
   // Se lee directo de window (no useSearchParams) para no forzar esta pantalla a render
-  // dinámico solo por un parámetro de error opcional.
+  // dinámico solo por un parámetro opcional.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('error') === '1') setEstado('error');
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === '1') setEstado('error');
+    if (params.get('bienvenida') === '1') setRecienComprado(true);
   }, []);
 
   const enviarEnlace = async () => {
@@ -63,9 +67,19 @@ export default function LoginPage() {
 
         {estado !== 'enviado' ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <h1 className="text-[26px] font-bold leading-[1.15] [font-family:var(--font-display)]">Entra a tu plan</h1>
+            <h1 className="text-[26px] font-bold leading-[1.15] [font-family:var(--font-display)]">
+              {recienComprado ? (
+                <>
+                  ¡Gracias por tu <span className="text-[var(--accent)]">compra</span>!
+                </>
+              ) : (
+                'Entra a tu plan'
+              )}
+            </h1>
             <p className="mt-2 text-[14px] leading-snug text-[var(--text-secondary)]">
-              Para guardarlo y verlo en cualquier dispositivo. Sin contraseñas.
+              {recienComprado
+                ? 'Escribe el mismo correo con el que pagaste — te mandamos tu enlace de entrada, sin contraseñas.'
+                : 'Para guardarlo y verlo en cualquier dispositivo. Sin contraseñas.'}
             </p>
 
             <input
