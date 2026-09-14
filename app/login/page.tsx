@@ -59,7 +59,7 @@ export default function LoginPage() {
 
   return (
     <FunnelScreen>
-      <div className="flex flex-1 flex-col justify-center">
+      <div className="mt-12 flex flex-1 flex-col">
         <Link href="/" className="mb-8 flex items-center gap-2 self-start">
           <img src="/logo-icon.png" alt="" className="h-7 w-7" />
           <span className="text-[15px] font-bold [font-family:var(--font-display)]">FocusTrack</span>

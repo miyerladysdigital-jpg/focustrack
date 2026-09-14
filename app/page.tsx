@@ -185,7 +185,7 @@ export default function LandingFocusTrack() {
         futurePacingMarked="Mañana abres los ojos, ves tu día en bloques, y si algo se cae, lo arreglas en 1 toque — sin culpa, sin drama."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        recap="Garantía Cero Sorpresas · 5 días de prueba gratis"
+        recap="5 días de prueba gratis · Garantía Cero Sorpresas de 7 días si algo no te convence"
         psMarked="PD: FocusTrack organiza tu día en bloques visuales y lo reprograma solo con [b]el Botón de Reprogramación Sin Culpa[/b]. Empieza hoy con 5 días de prueba."
       />
 
