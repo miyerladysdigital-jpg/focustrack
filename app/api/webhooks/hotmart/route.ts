@@ -29,7 +29,9 @@ function resolvePeriodEnd(payload: any): string | null {
 }
 
 async function logResult(eventId: string | undefined, type: string, result: 'applied' | 'duplicate' | 'illegal' | 'unauthorized' | 'error') {
-  await admin.from('webhook_log').insert({ event_id: eventId, type, result });
+  const { error } = await admin.from('webhook_log').insert({ event_id: eventId, type, result });
+  // Un log que falla en silencio esconde justo lo que hay que ver (ej. clave de Supabase mal puesta).
+  if (error) console.error('webhook_log: no se pudo escribir', { code: error.code, message: error.message });
 }
 
 export async function POST(req: NextRequest) {
