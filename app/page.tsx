@@ -110,8 +110,8 @@ export default function LandingFocusTrack() {
           nombre: 'Anual',
           badge: 'MÁS POPULAR',
           precioMes: '$2.08',
-          totalAnual: 'Se cobra $24.99/año',
-          ahorro: '6 meses gratis',
+          totalAnual: 'Después de la prueba, se cobra $24.99/año',
+          ahorro: 'Ahorras 48% frente al plan mensual',
           descomposicionDia: 'menos de $0.07 al día',
           ctaLabel: 'Empezar mi prueba gratis',
           ctaHref: CTA_HREF,
@@ -119,12 +119,13 @@ export default function LandingFocusTrack() {
             'Timeline ilimitado',
             'Botón de Reprogramación Sin Culpa',
             'Buzón sin límite',
-            'Se sincroniza con tu calendario',
+            'Un solo cobro al año',
           ],
         }}
         mensual={{
           nombre: 'Mensual',
           precioMes: '$3.99',
+          cobro: 'Después de la prueba, se cobra $3.99/mes',
           ctaLabel: 'Elegir mensual',
           ctaHref: CTA_HREF,
           features: [

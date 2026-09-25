@@ -21,6 +21,8 @@ export interface PlanOferta {
   sufijo?: string;
   /** Descomposición por día ("menos de $0.17 al día") — 13px bajo el precio. */
   descomposicionDia?: string;
+  /** "Después de la prueba, se cobra $X/mes" — qué se cobra y cuándo, junto al precio. */
+  cobro?: string;
   ctaLabel: string;
   ctaHref: string;
   /** 4-6 features en lenguaje de RESULTADO, máx 12 palabras c/u. */
@@ -66,7 +68,10 @@ function TrialBadge({ dias, label }: { dias: number; label?: string }) {
 }
 
 function useCountUpPrice(target: number, active: boolean, reduce: boolean) {
-  const [value, setValue] = useState(reduce ? target : 0);
+  // El valor inicial es el precio FINAL: el HTML del servidor (y cualquier lector sin JS,
+  // buscador o vista previa) debe mostrar "$3.99", nunca "$0.00". La cuenta animada arranca
+  // desde 0 solo cuando la tarjeta entra en pantalla.
+  const [value, setValue] = useState(target);
   useEffect(() => {
     if (!active) return;
     if (reduce) {
@@ -225,6 +230,7 @@ export function Oferta({
             </div>
             <div className="mt-4">
               <Precio plan={mensual} />
+              {mensual.cobro && <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{mensual.cobro}</p>}
             </div>
             <Features items={mensual.features} origen="Oferta → mensual" />
             <motion.a

@@ -96,8 +96,36 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
      ("ahora si quedo").
   - Reafirmado como diferido (mismo alcance que "Recordatorio diario"): alarmas/avisos por actividad
     para saber cuándo cambiar de una tarea a otra — requiere notificaciones push reales, sesión aparte.
-- Siguiente: webhook de Hotmart, dominio propio, y cerrar el certificado de publicación cuando el
-  MCP de Vercel vuelva a funcionar.
+- **Hotmart real conectado (2026-09-12/25)**: producto FocusTrack en Hotmart (mensual $3.99 y anual
+  $24.99, prueba gratis 5 días en ambos, garantía 7). Checkout mensual `pay.hotmart.com/P107413863S`,
+  anual `...?off=5oygp2dk` (variables `NEXT_PUBLIC_HOTMART_CHECKOUT_*` en Vercel). Efecty (efectivo) NO
+  permite prueba gratis — aclarado en el paywall.
+  - Webhook `app/api/webhooks/hotmart/route.ts` en producción (responde 401 sin hottok — verificado).
+    Migraciones: `processed_events`, `webhook_log`, `subscriptions` (unique user_id, estados +refunded/
+    chargeback), RPC `apply_hotmart_event` / `apply_hotmart_plan_change` (resuelven usuario por
+    auth.users.email ANTES de marcar procesado; si no hay cuenta, el handler la crea y manda enlace mágico).
+  - Candado real en `proxy.ts`: /app/* exige suscripción vigente (o trial de 5 días de
+    `profiles.trial_started_at` si nunca pasó por Hotmart). Cuenta lee `subscriptions` (Plan activo /
+    prueba / pago fallido / cancelada).
+  - Cuenta del dueño (miyerladysdigital@gmail.com) con acceso manual: fila `subscriptions` anual/active,
+    `hotmart_transaction_id='manual-owner-access'` (NO es una compra real) + datos demo en blocks/inbox.
+  - ⚠️ **PENDIENTE — compra de prueba E2E real NO completada** (las tarjetas fueron rechazadas por
+    intentos repetidos; probar con PayPal u otra tarjeta). `webhook_log` sigue vacío. Además hay que
+    capturar el JSON real del evento de trial y confirmar nombres de eventos/plan (`resolvePlan`,
+    `TRIAL_START_EVENT` son supuestos marcados "verificar").
+  - ⚠️ **PROMESAS DE LA LANDING/PAYWALL/TÉRMINOS SIN CONSTRUIR (bloquean promocionar)**: (1) "te avisamos
+    3 días antes / Día 4 correo antes del cobro" — no existe ningún envío programado de correo (además
+    3 días antes ≠ Día 4 con trial de 5); (2) "cancela desde Cuenta en 2 toques / en 1 toque" — el botón
+    no cancela en Hotmart (la Cuenta ahora manda a cancelar en Hotmart); opción real: API de Hotmart
+    para cancelar suscripciones + guardar `subscriber_code` en el webhook (requiere credenciales de API
+    de Hotmart del dueño y verificar el endpoint en su doc). Hasta construirlo, reescribir esas frases.
+  - Corregido 2026-09-25 tras revisión externa: precio `$0.00` en el HTML del servidor (ahora final desde
+    SSR), mensual sin "después de la prueba se cobra", "6 meses gratis" → "Ahorras 48%" (24.99 vs 47.88),
+    y eliminada la promesa falsa "Se sincroniza con tu calendario" (no existe integración).
+  - Capturas de la landing (`public/screenshots/*.png`) siguen VIEJAS ("Día 3 de 7", recordatorio
+    8:00 a.m.); regenerar con la app poblada.
+- Siguiente: probar compra real E2E, construir correos previos al cobro y cancelación real (o reescribir
+  promesas), dominio propio, certificado de publicación (MCP de Vercel no ve el proyecto — cuenta distinta).
 
 **Sesión 7 (2026-09-11/12) — Conectando el cobro real de Hotmart — EN CURSO**:
 - **Producto creado en Hotmart** (`FocusTrack`, ID 8431177, `Ventas activas` ON): planes Mensual
