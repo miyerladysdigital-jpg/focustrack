@@ -130,6 +130,17 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
     y eliminada la promesa falsa "Se sincroniza con tu calendario" (no existe integración).
   - Capturas de la landing (`public/screenshots/*.png`) siguen VIEJAS ("Día 3 de 7", recordatorio
     8:00 a.m.); regenerar con la app poblada.
+  - **Demostración «Mi plan → Imprevisto → Reorganizado» (2026-09-26)**: `components/landing/
+    DemoReprogramacion.tsx` dentro de Solucion (reemplaza el antes/después de texto). Interactiva,
+    cronograma con riel, panel de altura fija (406px en 375/360), foco/ARIA/teclado, barra fija oculta
+    sobre ella (`StickyCtaMobile ocultarEnId`), CTA desde el estado 1. revisor-visual, 4 rondas:
+    28/40·14/20·13/20 → 30·15·13 → 30·14·14 → **31·15·15** (gate 36/16/16: NO LISTA por poco).
+    Tras la 4ª ronda se corrigieron los 4 defectos medios (éxito visible con checks/«Confirmado»,
+    reunión en la franja de «Tiempo libre», chip del mecanismo enlaza a #demo, garantía junto al enlace)
+    SIN una 5ª ronda de revisor (retornos decrecientes). Capturas: `docs/revisiones/landing-demo-etapa*-375.png`,
+    veredicto: `docs/revisiones/landing-demo-veredicto.md`; medición: `scripts/captura-demo.mjs`.
+    Decisiones de marca que NO se tocaron: «timeline» (vs «cronograma») y «lo rearma en un toque» (la demo
+    pide reprogramar + confirmar). La landing en conjunto sigue sin pasar el gate (33/40·15/20 en 7ª ronda).
 - Siguiente: probar compra real E2E, construir correos previos al cobro y cancelación real (o reescribir
   promesas), dominio propio, certificado de publicación (MCP de Vercel no ve el proyecto — cuenta distinta).
 

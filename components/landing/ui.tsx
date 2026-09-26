@@ -185,6 +185,7 @@ export function StickyCtaMobile({
   heroId = 'hero',
   ofertaId = 'oferta',
   ctaFinalId = 'cta-final',
+  ocultarEnId,
 }: {
   labelComercial: string;
   href: string;
@@ -192,12 +193,16 @@ export function StickyCtaMobile({
   heroId?: string;
   ofertaId?: string;
   ctaFinalId?: string;
+  /** Sección extra frente a la cual la barra se oculta (ej. la demo interactiva: dos acciones
+   * primarias verdes a la vez compiten y la barra tapa los botones de la demo). */
+  ocultarEnId?: string;
 }) {
   const reduce = useReducedMotion();
   const [heroVisible, setHeroVisible] = useState(true);
   const [ofertaVisible, setOfertaVisible] = useState(false);
   const [ofertaVista, setOfertaVista] = useState(false);
   const [finalVisible, setFinalVisible] = useState(false);
+  const [otraVisible, setOtraVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -226,14 +231,16 @@ export function StickyCtaMobile({
       if (v) setOfertaVista(true);
     });
     const c = observar(ctaFinalId, setFinalVisible);
+    const d = ocultarEnId ? observar(ocultarEnId, setOtraVisible) : null;
     return () => {
       a?.disconnect();
       b?.disconnect();
       c?.disconnect();
+      d?.disconnect();
     };
-  }, [heroId, ofertaId, ctaFinalId]);
+  }, [heroId, ofertaId, ctaFinalId, ocultarEnId]);
 
-  const visible = !heroVisible && !ofertaVisible && !finalVisible && !dismissed;
+  const visible = !heroVisible && !ofertaVisible && !finalVisible && !otraVisible && !dismissed;
 
   const cerrar = () => {
     setDismissed(true);

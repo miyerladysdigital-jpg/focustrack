@@ -7,6 +7,7 @@
 // (tupla en el tipo: ni 2 ni 4) + antes/después opcional. Pasos entran
 // escalonados (whileInView + stagger, reduced-motion respetado).
 
+import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { Accent, Hairline, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy } from './MarkedCopy';
@@ -36,6 +37,8 @@ export interface SolucionProps {
     labelDespues: string;
     despues: string;
   };
+  /** Demostración visual del mecanismo (ocupa el lugar del antes/después de texto). */
+  demo?: ReactNode;
   id?: string;
 }
 
@@ -46,6 +49,7 @@ export function Solucion({
   bigIdeaMarked,
   pasos,
   antesDespues,
+  demo,
   id,
 }: SolucionProps) {
   warnCopy('Solución → título', tituloMarked, 8);
@@ -71,16 +75,34 @@ export function Solucion({
 
         {/* El chip del mecanismo bautizado — hairline + <Accent> (55 §4) */}
         <motion.div variants={item} className="mt-4">
-          <Hairline surface="bg" className="w-fit">
-            <span className="block px-4 py-2 text-[15px] font-semibold">
-              <Accent>{mecanismo}</Accent>
-            </span>
-          </Hairline>
+          {/* Con demo en la sección, el chip lleva a ella: tiene forma de botón, así que hace algo. */}
+          {(() => {
+            const chip = (
+              <Hairline surface="bg" className="w-fit">
+                <span className="block px-4 py-2 text-[15px] font-semibold">
+                  <Accent>{mecanismo}</Accent>
+                </span>
+              </Hairline>
+            );
+            return demo ? (
+              <a
+                href="#demo"
+                className="block w-fit rounded-[var(--radius-card)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+              >
+                {chip}
+              </a>
+            ) : (
+              chip
+            );
+          })()}
         </motion.div>
 
         <motion.p variants={item} className="mt-5 max-w-[620px] text-[17px] leading-relaxed text-[var(--text-secondary)] md:text-[18px]">
           <MarkedCopy text={bigIdeaMarked} />
         </motion.p>
+
+        {/* La demostración va PRIMERO (sobre el pliegue): ver el mecanismo pesa más que leer los pasos. */}
+        {demo && <motion.div variants={item}>{demo}</motion.div>}
 
         {/* 3 pasos: filas apiladas en mobile, 3 columnas en desktop */}
         <ol className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -100,7 +122,7 @@ export function Solucion({
           ))}
         </ol>
 
-        {antesDespues && (
+        {!demo && antesDespues && (
           <motion.div variants={item} className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-[var(--radius-card)] bg-[var(--surface-2)] p-5">
               <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">

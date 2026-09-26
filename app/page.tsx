@@ -10,6 +10,7 @@ import { Hero } from '@/components/landing/Hero';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
 import { Solucion } from '@/components/landing/Solucion';
+import { DemoReprogramacion } from '@/components/landing/DemoReprogramacion';
 import { AppPorDentro } from '@/components/landing/AppPorDentro';
 import { Oferta } from '@/components/landing/Oferta';
 import { Garantia } from '@/components/landing/Garantia';
@@ -73,12 +74,7 @@ export default function LandingFocusTrack() {
           { titulo: 'Recibe tu timeline', detalle: 'Bloques de tiempo claros, de un vistazo.' },
           { titulo: 'Si algo se cae, reprogramas', detalle: 'Un toque y tu día se rearma — sin culpa.' },
         ]}
-        antesDespues={{
-          labelAntes: 'Antes',
-          antes: 'Una lista larga y la sensación de que ya perdiste el día.',
-          labelDespues: 'Después',
-          despues: 'Tu día en bloques, y un botón que lo arregla si algo cambia.',
-        }}
+        demo={<DemoReprogramacion />}
       />
 
       {/* 5. LA APP POR DENTRO */}
@@ -201,7 +197,7 @@ export default function LandingFocusTrack() {
         ]}
       />
 
-      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} />
+      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} ocultarEnId="demo" />
     </div>
   );
 }
