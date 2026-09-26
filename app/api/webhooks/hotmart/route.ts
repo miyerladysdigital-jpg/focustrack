@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
   }
 
   const event: string = payload.event;
-  const email: string | undefined = payload.data?.buyer?.email;
+  // Supabase guarda los correos en minúsculas; el comprador pudo escribir mayúsculas en Hotmart.
+  const email: string | undefined = payload.data?.buyer?.email?.trim().toLowerCase();
   const transactionId: string | undefined = payload.data?.purchase?.transaction;
   const eventId: string = payload.id ?? payload.event_id ?? transactionId ?? `${event}:${email}:${ts ?? ''}`;
   const payloadHash = crypto.createHash('sha256').update(rawBody).digest('hex');
@@ -107,37 +108,44 @@ export async function POST(req: NextRequest) {
     p_period_end: periodEnd,
   };
 
-  let { data, error } = await admin.rpc('apply_hotmart_event', rpcArgs);
-  if (error) {
-    console.error('webhook hotmart error', { event, code: error.code }); // sin PII en logs
+  const fallar = async (contexto: string, error: { code?: string; message?: string }) => {
+    // El mensaje ayuda a diagnosticar; se le quita el correo para no dejar datos personales en logs.
+    console.error(`webhook hotmart: ${contexto}`, {
+      event,
+      code: error.code,
+      message: error.message?.split(email).join('[correo]'),
+    });
     await logResult(eventId, event, 'error');
-    return NextResponse.json({ error: 'processing failed' }, { status: 500 });
-  }
+    return NextResponse.json({ error: 'processing failed' }, { status: 500 }); // 5xx → Hotmart reintenta
+  };
+
+  let { data, error } = await admin.rpc('apply_hotmart_event', rpcArgs);
+  if (error) return fallar('rpc', error);
 
   // Comprador sin cuenta todavía (paga antes de haber iniciado sesión alguna vez): se crea la
   // cuenta y se reintenta el MISMO event_id — el RPC no lo marcó procesado en el intento 'no_user'
   // (resuelve el usuario ANTES de tocar processed_events), así que el reintento es seguro.
   if (data?.status === 'no_user') {
+    // Hotmart manda varios avisos casi a la vez (aprobada + completa…): otro aviso pudo crear la
+    // cuenta un instante antes, y esta creación falla. No importa: el reintento del RPC decide.
     const { error: createError } = await admin.auth.admin.createUser({ email, email_confirm: true });
-    if (createError && createError.code !== 'email_exists') {
-      console.error('hotmart: no se pudo crear la cuenta', { code: createError.code });
-      await logResult(eventId, event, 'error');
-      return NextResponse.json({ error: 'processing failed' }, { status: 500 });
-    }
     ({ data, error } = await admin.rpc('apply_hotmart_event', rpcArgs));
-    if (error) {
-      console.error('webhook hotmart retry error', { event, code: error.code });
-      await logResult(eventId, event, 'error');
-      return NextResponse.json({ error: 'processing failed' }, { status: 500 });
-    }
-    if (data?.status === 'applied') {
+    if (error) return fallar('rpc tras crear cuenta', error);
+    if (data?.status === 'no_user') return fallar('sigue sin cuenta', createError ?? { message: 'sin detalle' });
+    // Enlace mágico solo si ESTE aviso creó la cuenta (evita mandar varios correos por una compra).
+    if (data?.status === 'applied' && !createError) {
       await admin.auth.signInWithOtp({ email }); // mismo enlace mágico que ya usa /login
     }
   }
 
-  const result = data?.status === 'applied' ? 'applied' : data?.status === 'duplicate' ? 'duplicate' : 'illegal';
-  await logResult(eventId, event, result);
+  if (data?.status === 'applied' || data?.status === 'duplicate') {
+    await logResult(eventId, event, data.status);
+  } else if (data?.status === 'illegal_transition') {
+    await logResult(eventId, event, 'illegal'); // reembolso/contracargo no se "resucita" con un aviso viejo
+  } else {
+    return fallar('respuesta inesperada del RPC', { message: String(data?.status) });
+  }
 
-  // 7. Siempre 200 cuando se tomó una decisión (incluido duplicate/illegal): Hotmart deja de reintentar.
-  return NextResponse.json({ received: true, result: data?.status ?? 'ok' });
+  // 200 cuando se tomó una decisión (incluido duplicate/illegal): Hotmart deja de reintentar.
+  return NextResponse.json({ received: true, result: data.status });
 }
