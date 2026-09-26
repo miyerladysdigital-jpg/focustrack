@@ -14,7 +14,9 @@ const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SU
   auth: { persistSession: false },
 });
 
-const REPLAY_WINDOW_MS = 5 * 60 * 1000;
+// Hotmart REINTENTA los avisos que fallan durante horas: una ventana de minutos descartaría
+// justo los reintentos que rescatan una venta. El anti-duplicado real es processed_events.
+const REPLAY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 // ⚠️ (verificar con el payload real de esta cuenta — mini-procedimiento en 18-VENTA-HOTMART.md
 // "OPERACIONES DE SUSCRIPCIÓN"): el nombre/código exacto del plan dentro del payload puede diferir.
