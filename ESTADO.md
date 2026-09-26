@@ -109,10 +109,16 @@ las 4 pantallas del dinero: COMPLETA Y CERRADA (ver "Resultado final" abajo).
     prueba / pago fallido / cancelada).
   - Cuenta del dueño (miyerladysdigital@gmail.com) con acceso manual: fila `subscriptions` anual/active,
     `hotmart_transaction_id='manual-owner-access'` (NO es una compra real) + datos demo en blocks/inbox.
-  - ⚠️ **PENDIENTE — compra de prueba E2E real NO completada** (las tarjetas fueron rechazadas por
-    intentos repetidos; probar con PayPal u otra tarjeta). `webhook_log` sigue vacío. Además hay que
-    capturar el JSON real del evento de trial y confirmar nombres de eventos/plan (`resolvePlan`,
-    `TRIAL_START_EVENT` son supuestos marcados "verificar").
+  - **Webhook VERIFICADO con los 6 eventos de "Enviar test" de Hotmart (2026-09-26)**: hottok OK,
+    cuenta creada, suscripción aplicada, reembolso/contracargo terminales por transacción, correo sin
+    distinguir mayúsculas, avisos simultáneos en fila (candado por correo). Datos de prueba borrados.
+    Esquema final en `supabase/hotmart-webhook.sql`. Bug de la clave: `SUPABASE_SECRET_KEY` de Vercel era
+    inválida ("Invalid API key") — corregida por el dueño.
+  - ⚠️ **PENDIENTE**: la compra REAL del dueño (cobrada tras la prueba) nunca llegó al webhook (la clave
+    estaba mal); su cuenta sigue con acceso manual (`manual-owner-access`, anual/active) que coincide con
+    la realidad. NO reenviar avisos viejos (orden incierto puede regresar el estado). Falta observar un
+    evento REAL de trial/cobro para confirmar `resolvePlan` (el test de Hotmart cayó en "mensual"),
+    `TRIAL_START_EVENT` y el campo de fecha de próximo cobro (`current_period_end` llega null).
   - ⚠️ **PROMESAS DE LA LANDING/PAYWALL/TÉRMINOS SIN CONSTRUIR (bloquean promocionar)**: (1) "te avisamos
     3 días antes / Día 4 correo antes del cobro" — no existe ningún envío programado de correo (además
     3 días antes ≠ Día 4 con trial de 5); (2) "cancela desde Cuenta en 2 toques / en 1 toque" — el botón
